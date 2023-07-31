@@ -4,8 +4,7 @@ CREATE TABLE products {
     id int PRIMARY KEY,
     name varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
-    price money NOT NULL DEFAULT 0.00,
-    img_url text DEFAULT NULL
+    price money NOT NULL DEFAULT 0.00
 }
 
 -- USER
