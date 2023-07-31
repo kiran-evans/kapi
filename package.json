@@ -1,8 +1,8 @@
 {
   "name": "kapi",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "An e-commerce REST API using Express, Node.js, and Postgres",
+  "main": "dist/index.js",
   "scripts": {
     "build": "esbuild index.ts --bundle --outdir=dist",
     "dev": "esbuild index.ts --bundle --outdit=dist --watch",
@@ -13,7 +13,10 @@
   "license": "ISC",
   "packageManager": "npm@9.6.1",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "connect": "^3.2.0",
+    "js-yaml": "^3.3.0",
+    "oas3-tools": "^2.2.3"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.62.0",
