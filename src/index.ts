@@ -19,14 +19,14 @@ app.options('*', cors(corsOptions));
 import productRouter from './routers/productRouter';
 app.use(productRouter);
 
-import userRouter from './routers/userRouter';
-app.use(userRouter);
+// import userRouter from './routers/userRouter';
+// app.use(userRouter);
 
-import cartRouter from './routers/cartRouter';
-app.use(cartRouter);
+// import cartRouter from './routers/cartRouter';
+// app.use(cartRouter);
 
-import orderRouter from './routers/orderRouter';
-app.use(orderRouter);
+// import orderRouter from './routers/orderRouter';
+// app.use(orderRouter);
 
 // Server start
 

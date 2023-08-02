@@ -1,30 +1,47 @@
 openapi: 3.0.2
-info:
-  title: kapi
-  description: "An e-commerce REST API using Express, Node.js, and Postgres"
-  version: 1.0.0
-servers:
-- url: /
 paths:
+  /product:
+    summary: Manage products
+    description: Manage products in the database
+    get:
+      summary: Get all products
+      description: Get all products in the database
+      operationId: get_all_products
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - product
+    post:
+      summary: Create product
+      description: Create a new product in the database
+      operationId: new_product
+      requestBody:
+        description: POST product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - product
   /product/{id}:
     summary: Manage product with id
     description: Perform CRUD operations on product matching id
     get:
-      tags:
-      - product
       summary: Get product
       description: Get product matching id
       operationId: get_products
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
-        "200":
+        '200':
           description: Example GET
           content:
             application/json:
@@ -39,139 +56,42 @@ paths:
                     }
         default:
           description: Default error sample response
-      x-swagger-router-controller: Product
-    delete:
       tags:
-      - product
-      summary: Delete product
-      description: Delete product matching id
-      operationId: delete_product
-      parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
-      responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Product
+        - product
     patch:
-      tags:
-      - product
       summary: Update product
       description: Update the product matching id
       operationId: update_product
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: Product
-  /product/all:
-    summary: Get all products
-    description: Get all of the products in the database
-  /product/new:
-    summary: Create product
-    description: Create a new product entry in the database
-    post:
       tags:
-      - product
-      summary: Create product
-      description: Create a new product in the database
-      operationId: new_product
-      requestBody:
-        description: POST product
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/product'
-      responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Product
-  /user/{id}:
-    summary: Manage user
-    description: Perform CRUD operations on user matching id
-    get:
-      tags:
-      - user
-      summary: Get user
-      description: Get user matching id
-      operationId: get_user
-      parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
-      responses:
-        "200":
-          description: GET user
-          content:
-            application/json:
-              examples:
-                Example:
-                  value: |-
-                    {
-                        "id": 1,
-                        "email": "example@email.com"
-                    }
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: User
+        - product
     delete:
-      tags:
-      - user
-      summary: Delete user
-      description: Delete user matching id
-      operationId: delete_user
+      summary: Delete product
+      description: Delete product matching id
+      operationId: delete_product
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: User
-    patch:
       tags:
-      - user
-      summary: Update user
-      description: Update user matching id
-      operationId: update_user
-      parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
-      responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: User
-  /user/new:
-    summary: New user
-    description: Create new user
+        - product
+  /user:
+    summary: Manage users
+    description: Manage users in the database
     post:
-      tags:
-      - user
       summary: Create user
       description: Create new user entry in the database
       operationId: new_user
@@ -184,26 +104,82 @@ paths:
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: User
+      tags:
+        - user
+  /user/{id}:
+    summary: Manage user
+    description: Perform CRUD operations on user matching id
+    get:
+      summary: Get user
+      description: Get user matching id
+      operationId: get_user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        '200':
+          description: GET user
+          content:
+            application/json:
+              examples:
+                Example:
+                  value: |-
+                    {
+                        "id": 1,
+                        "email": "example@email.com"
+                    }
+        default:
+          description: Default error sample response
+      tags:
+        - user
+    patch:
+      summary: Update user
+      description: Update user matching id
+      operationId: update_user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - user
+    delete:
+      summary: Delete user
+      description: Delete user matching id
+      operationId: delete_user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - user
   /cart/{id}:
     summary: Manage cart
     description: Perform CRUD operations on cart matching id
     get:
-      tags:
-      - cart
       summary: Get cart
       description: Get cart matching id
       operationId: get_cart
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
-        "200":
+        '200':
           description: GET cart
           content:
             application/json:
@@ -227,44 +203,50 @@ paths:
                     }
         default:
           description: Default error sample response
-      x-swagger-router-controller: Cart
-    patch:
       tags:
-      - cart
+        - cart
+    patch:
       summary: Update cart
       description: Update cart matching id
       operationId: update_cart
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: Cart
+      tags:
+        - cart
+  /order:
+    summary: Create order
+    description: Create new order entry in the database
+    post:
+      summary: Create order
+      description: Create new order entry in the database
+      operationId: new_order
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - order
   /order/{id}:
     summary: Manage order
     description: Perform CRUD operations on order matching id
     get:
-      tags:
-      - order
       summary: Get order
       description: Get order matching id
       operationId: get_order
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
-        "200":
+        '200':
           description: GET order
           content:
             application/json:
@@ -289,39 +271,18 @@ paths:
                     }
         default:
           description: Default error sample response
-      x-swagger-router-controller: Order
-    delete:
       tags:
-      - order
-      summary: Delete order
-      description: Delete order matching id
-      operationId: delete_order
-      parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
-      responses:
-        default:
-          description: Default error sample response
-      x-swagger-router-controller: Order
+        - order
     patch:
-      tags:
-      - order
       summary: Update order
       description: Update order matching id
       operationId: update_order
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: number
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       requestBody:
         description: CREATE order
         content:
@@ -331,34 +292,36 @@ paths:
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: Order
-  /order/new:
-    summary: Create order
-    description: Create new order entry in the database
-    post:
       tags:
-      - order
-      summary: Create order
-      description: Create new order entry in the database
-      operationId: new_order
+        - order
+    delete:
+      summary: Delete order
+      description: Delete order matching id
+      operationId: delete_order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: Order
+      tags:
+        - order
   /auth:
     summary: Auth
     description: Auth user
     post:
-      tags:
-      - user
-      - auth
       summary: Auth
       description: Auth user
       operationId: auth
       responses:
         default:
           description: Default error sample response
-      x-swagger-router-controller: User
+      tags:
+        - user
+        - auth
 components:
   schemas:
     product:
@@ -380,3 +343,7 @@ components:
       properties:
         user_id:
           type: number
+info:
+  title: kapi
+  version: 1.0.0
+  description: An e-commerce REST API using Express, Node.js, and Postgres
