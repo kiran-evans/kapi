@@ -89,7 +89,7 @@ export const PATCH = (async (req, res) => {
 // Delete one by id
 export const DELETE = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`DELETE FROM users WHERE id = ${req.params.id}`);
+        const { rowCount } = await pool.query(`DELETE FROM users WHERE id = ${req.params.id}`);
 
         if (!rowCount) res.status(404).send();
 
