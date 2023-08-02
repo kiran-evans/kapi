@@ -1,37 +1,40 @@
+import { genSalt, hash } from 'bcryptjs';
 import { RequestHandler } from "express";
 import { pool } from "../pg";
 
-// Create new product
+import dotenv from 'dotenv';
+dotenv.config();
+
+// Create new user
 export const POST = (async (req, res) => {
     try {
-        const { name, description, price } = req.body;
-        await pool.query(
-            `INSERT INTO products (
-                name,
-                description,
-                price
+        const { email, password } = req.body;
+
+        // Hash new pw
+        const salt = await genSalt(Number(process.env.SALT_ROUNDS));
+        const hashedPw = await hash(password, salt);
+
+        // Insert new user record and return id
+        const { rows } = await pool.query(
+            `INSERT INTO users (
+                email,
+                password
             ) VALUES (
-                '${name}',
-                '${description}',
-                ${price}
-            )`);
+                '${email}',
+                '${hashedPw}'
+            ) RETURNING id`
+        );
+        
+        // Create new empty cart
+        await pool.query(
+            `INSERT INTO carts (
+                user_id
+            ) VALUES (
+                ${rows[0].id}
+            )`
+        );
 
         res.status(201).send();
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Get all
-export const GET_ALL = (async (req, res) => {
-    try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products`);
-
-        if (!rowCount) res.status(404).send();
-
-        res.status(200).json(rows);
 
     } catch (err: any) {
         console.error(err);
@@ -42,7 +45,7 @@ export const GET_ALL = (async (req, res) => {
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT (id, email) FROM users WHERE id = ${req.params.id}`);
 
         if (!rowCount) res.status(404).send();
 
@@ -57,7 +60,7 @@ export const GET = (async (req, res) => {
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE id = ${req.params.id}`);
 
         if (!rowCount) res.status(404).send();
 
@@ -70,10 +73,8 @@ export const PATCH = (async (req, res) => {
         }
 
         await pool.query(
-            `UPDATE products SET
-                name='${newBody.name}',
-                description='${newBody.description}',
-                price='${newBody.price}'
+            `UPDATE users SET
+                email='${newBody.email}'
                 WHERE id = ${req.params.id}
             `)
 
@@ -88,7 +89,7 @@ export const PATCH = (async (req, res) => {
 // Delete one by id
 export const DELETE = (async (req, res) => {
     try {
-        const { rowCount } = await pool.query(`DELETE FROM products WHERE id = ${req.params.id}`);
+        const { rowCount } = await pool.query(`DELETE FROM users WHERE id = ${req.params.id}`);
 
         if (!rowCount) res.status(404).send();
 

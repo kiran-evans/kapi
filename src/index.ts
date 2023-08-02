@@ -28,6 +28,12 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
+// Create tables
+import { createTables } from './pg';
+(async () => {
+    await createTables();
+})();
+
 // Server start
 
 const port = process.env.PORT;
