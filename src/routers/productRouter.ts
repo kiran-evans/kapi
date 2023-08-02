@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { GET, GET_ALL, PATCH, POST } from "../controllers/Product";
+import { DELETE, GET, GET_ALL, PATCH, POST } from "../controllers/Product";
 
 const router = Router();
 
@@ -12,5 +12,6 @@ route.get(GET_ALL);
 const idRoute = router.route('/product/:id');
 idRoute.get(GET);
 idRoute.patch(PATCH);
+idRoute.delete(DELETE);
 
 export default router;
