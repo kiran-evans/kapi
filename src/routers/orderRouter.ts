@@ -1,15 +1,14 @@
 import { Router } from "express";
-import { DELETE, GET, GET_ALL, PATCH, POST } from "../controllers/Product";
+import { DELETE, GET, PATCH, POST } from "../controllers/Order";
 
 const router = Router();
 
 // Default route
-const route = router.route('/product');
+const route = router.route('/order');
 route.post(POST);
-route.get(GET_ALL);
 
-// Routes using product id
-const idRoute = router.route('/product/:id');
+// Routes using order id
+const idRoute = router.route('/order/:id');
 idRoute.get(GET);
 idRoute.patch(PATCH);
 idRoute.delete(DELETE);
