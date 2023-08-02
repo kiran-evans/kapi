@@ -45,7 +45,7 @@ export const POST = (async (req, res) => {
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT (id, email) FROM users WHERE id = ${req.params.id}`);
 
         if (!rowCount) res.status(404).send();
 
