@@ -22,11 +22,11 @@ app.use(productRouter);
 import userRouter from './routers/userRouter';
 app.use(userRouter);
 
-// import cartRouter from './routers/cartRouter';
-// app.use(cartRouter);
+import cartRouter from './routers/cartRouter';
+app.use(cartRouter);
 
-// import orderRouter from './routers/orderRouter';
-// app.use(orderRouter);
+import orderRouter from './routers/orderRouter';
+app.use(orderRouter);
 
 // Create tables
 import { createTables } from './pg';

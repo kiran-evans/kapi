@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS carts (
     id BIGSERIAL PRIMARY KEY,
     user_id bigint REFERENCES users ON DELETE CASCADE,
-    items bigint[]
+    items bigint[] NOT NULL DEFAULT '{}'
 )
 
 -- ORDER
