@@ -349,5 +349,5 @@ components:
           type: string
 info:
   title: kapi
-  version: 1.0.0
+  version: 1.0.1
   description: An e-commerce REST API using Express, Node.js, and Postgres
