@@ -27,7 +27,7 @@ export const GET = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = ${req.params.id}`);
 
-        if (!rowCount) res.status(404).send();
+        if (!rowCount) return res.status(404).send();
 
         res.status(200).json(rows[0]);
 
@@ -42,7 +42,7 @@ export const PATCH = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = ${req.params.id}`);
 
-        if (!rowCount) res.status(404).send();
+        if (!rowCount) return res.status(404).send();
 
         let newBody = { ...rows[0] };
         
@@ -72,7 +72,7 @@ export const DELETE = (async (req, res) => {
     try {
         const { rowCount } = await pool.query(`DELETE FROM orders WHERE id = ${req.params.id}`);
 
-        if (!rowCount) res.status(404).send();
+        if (!rowCount) return res.status(404).send();
 
         res.status(204).send();
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { DELETE, GET, PATCH, POST } from "../controllers/User";
+import { AUTH, DELETE, GET, PATCH, POST } from "../controllers/User";
 
 const router = Router();
 
@@ -12,5 +12,9 @@ const idRoute = router.route('/user/:id');
 idRoute.get(GET);
 idRoute.patch(PATCH);
 idRoute.delete(DELETE);
+
+// Auth route
+const authRoute = router.route('/auth');
+authRoute.post(AUTH);
 
 export default router;

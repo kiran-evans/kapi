@@ -6,7 +6,7 @@ export const GET = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
 
-        if (!rowCount) res.status(404).send();
+        if (!rowCount) return res.status(404).send();
 
         res.status(200).json(rows[0]);
 
@@ -21,7 +21,7 @@ export const PATCH = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
 
-        if (!rowCount) res.status(404).send();
+        if (!rowCount) return res.status(404).send();
 
         let newBody = { ...rows[0] };
         
