@@ -1,5 +1,32 @@
 openapi: 3.0.2
 paths:
+  /product:
+    summary: Manage products
+    description: Manage products in the database
+    get:
+      summary: Get all products
+      description: Get all products in the database
+      operationId: get_all_products
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - product
+    post:
+      summary: Create product
+      description: Create a new product in the database
+      operationId: new_product
+      requestBody:
+        description: POST product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/product'
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - product
   /product/{id}:
     summary: Manage product with id
     description: Perform CRUD operations on product matching id
@@ -61,56 +88,27 @@ paths:
           description: Default error sample response
       tags:
         - product
-  /product/all:
-    summary: Get all products
-    description: Get all of the products in the database
-  /product/new:
-    summary: Create product
-    description: Create a new product entry in the database
+  /user:
+    summary: Manage users
+    description: Manage users in the database
     post:
-      summary: Create product
-      description: Create a new product in the database
-      operationId: new_product
+      summary: Create user
+      description: Create new user entry in the database
+      operationId: new_user
       requestBody:
-        description: POST product
+        description: CREATE user
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/product'
+              $ref: '#/components/schemas/user'
       responses:
-        default:
-          description: Default error sample response
-      tags:
-        - product
-  /user/{id}:
-    summary: Manage user
-    description: Perform CRUD operations on user matching id
-    get:
-      summary: Get user
-      description: Get user matching id
-      operationId: get_user
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: number
-      responses:
-        '200':
-          description: GET user
-          content:
-            application/json:
-              examples:
-                Example:
-                  value: |-
-                    {
-                        "id": 1,
-                        "email": "example@email.com"
-                    }
         default:
           description: Default error sample response
       tags:
         - user
+  /user/{id}:
+    summary: Manage user
+    description: Perform CRUD operations on user matching id
     patch:
       summary: Update user
       description: Update user matching id
@@ -141,33 +139,15 @@ paths:
           description: Default error sample response
       tags:
         - user
-  /user/new:
-    summary: New user
-    description: Create new user
-    post:
-      summary: Create user
-      description: Create new user entry in the database
-      operationId: new_user
-      requestBody:
-        description: CREATE user
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/user'
-      responses:
-        default:
-          description: Default error sample response
-      tags:
-        - user
-  /cart/{id}:
+  /cart/{user_id}:
     summary: Manage cart
-    description: Perform CRUD operations on cart matching id
+    description: Perform CRUD operations on cart matching user_id
     get:
       summary: Get cart
-      description: Get cart matching id
+      description: Get cart matching user_id
       operationId: get_cart
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
@@ -204,7 +184,7 @@ paths:
       description: Update cart matching id
       operationId: update_cart
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
@@ -291,18 +271,6 @@ paths:
           description: Default error sample response
       tags:
         - order
-  /order/new:
-    summary: Create order
-    description: Create new order entry in the database
-    post:
-      summary: Create order
-      description: Create new order entry in the database
-      operationId: new_order
-      responses:
-        default:
-          description: Default error sample response
-      tags:
-        - order
   /auth:
     summary: Auth
     description: Auth user
@@ -310,12 +278,47 @@ paths:
       summary: Auth
       description: Auth user
       operationId: auth
+      requestBody:
+        description: AUTH user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/auth'
       responses:
+        '200':
+          description: Login user
+          content:
+            application/json:
+              examples:
+                Example:
+                  value: |-
+                    {
+                        "id": 1,
+                        "email": "example@email.com"
+                    }
         default:
           description: Default error sample response
       tags:
         - user
-        - auth
+  /checkout/{user_id}:
+    summary: Checkout path
+    description: Endpoint used for confirming a purchase once payment has succeeded
+    post:
+      summary: Checkout
+      description: Checkout the user's cart
+      operationId: checkout
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - cart
+        - order
 components:
   schemas:
     product:
@@ -337,6 +340,13 @@ components:
       properties:
         user_id:
           type: number
+    auth:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
 info:
   title: kapi
   version: 1.0.0
