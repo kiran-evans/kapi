@@ -69,9 +69,11 @@ export const CHECKOUT = (async (req, res) => {
         await pool.query(
             `INSERT INTO orders (
                 user_id,
+                date_placed,
                 items
             ) VALUES (
                 '${rows[0].user_id}',
+                ${Date.now()},
                 '${order_items}'
             )`);
         
