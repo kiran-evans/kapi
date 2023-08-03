@@ -165,15 +165,15 @@ paths:
           description: Default error sample response
       tags:
         - user
-  /cart/{id}:
+  /cart/{user_id}:
     summary: Manage cart
-    description: Perform CRUD operations on cart matching id
+    description: Perform CRUD operations on cart matching user_id
     get:
       summary: Get cart
-      description: Get cart matching id
+      description: Get cart matching user_id
       operationId: get_cart
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
@@ -210,7 +210,7 @@ paths:
       description: Update cart matching id
       operationId: update_cart
       parameters:
-        - name: id
+        - name: user_id
           in: path
           required: true
           schema:
@@ -321,7 +321,24 @@ paths:
           description: Default error sample response
       tags:
         - user
-        - auth
+  /checkout/{user_id}:
+    summary: Checkout path
+    description: Endpoint used for confirming a purchase once payment has succeeded
+    post:
+      summary: Checkout
+      description: Checkout the user's cart
+      operationId: checkout
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - cart
 components:
   schemas:
     product:

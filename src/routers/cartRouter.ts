@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { GET, PATCH } from "../controllers/Cart";
+import { CHECKOUT, GET, PATCH } from "../controllers/Cart";
 
 const router = Router();
 
@@ -7,5 +7,9 @@ const router = Router();
 const idRoute = router.route('/cart/:user_id');
 idRoute.get(GET);
 idRoute.patch(PATCH);
+
+// Checkout route
+const checkoutRoute = router.route('/checkout/:user_id');
+checkoutRoute.post(CHECKOUT);
 
 export default router;

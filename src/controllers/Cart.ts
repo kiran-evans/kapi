@@ -46,3 +46,47 @@ export const PATCH = (async (req, res) => {
         res.status(500).send();
     }
 }) satisfies RequestHandler;
+
+// Checkout
+export const CHECKOUT = (async (req, res) => {
+    try {
+        // Payment has succeeded
+        // Find user's cart
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
+        if (!rowCount) return res.status(404).send();
+        
+        // Save cart items as an array of order_items (name, price, quantity)
+        let order_items = [];
+        for (const item of rows[0].items) {
+            order_items.push({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+            });
+        }
+        
+        // Create a new order
+        await pool.query(
+            `INSERT INTO orders (
+                user_id,
+                items
+            ) VALUES (
+                '${rows[0].user_id}',
+                '${order_items}'
+            )`);
+        
+        // Clear the user's cart
+        await pool.query(
+            `INSERT INTO carts (
+                items
+            ) VALUES (
+                '{}'
+            )`);
+
+        res.status(204).send();
+
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).send();
+    }
+}) satisfies RequestHandler;
