@@ -109,32 +109,6 @@ paths:
   /user/{id}:
     summary: Manage user
     description: Perform CRUD operations on user matching id
-    get:
-      summary: Get user
-      description: Get user matching id
-      operationId: get_user
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: number
-      responses:
-        '200':
-          description: GET user
-          content:
-            application/json:
-              examples:
-                Example:
-                  value: |-
-                    {
-                        "id": 1,
-                        "email": "example@email.com"
-                    }
-        default:
-          description: Default error sample response
-      tags:
-        - user
     patch:
       summary: Update user
       description: Update user matching id
@@ -220,18 +194,6 @@ paths:
           description: Default error sample response
       tags:
         - cart
-  /order:
-    summary: Create order
-    description: Create new order entry in the database
-    post:
-      summary: Create order
-      description: Create new order entry in the database
-      operationId: new_order
-      responses:
-        default:
-          description: Default error sample response
-      tags:
-        - order
   /order/{id}:
     summary: Manage order
     description: Perform CRUD operations on order matching id
@@ -316,7 +278,24 @@ paths:
       summary: Auth
       description: Auth user
       operationId: auth
+      requestBody:
+        description: AUTH user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/auth'
       responses:
+        '200':
+          description: Login user
+          content:
+            application/json:
+              examples:
+                Example:
+                  value: |-
+                    {
+                        "id": 1,
+                        "email": "example@email.com"
+                    }
         default:
           description: Default error sample response
       tags:
@@ -339,6 +318,7 @@ paths:
           description: Default error sample response
       tags:
         - cart
+        - order
 components:
   schemas:
     product:
@@ -360,6 +340,13 @@ components:
       properties:
         user_id:
           type: number
+    auth:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
 info:
   title: kapi
   version: 1.0.0
