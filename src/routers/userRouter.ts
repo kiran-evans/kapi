@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { AUTH, DELETE, GET, PATCH, POST } from "../controllers/User";
+import { AUTH, DELETE, PATCH, POST } from "../controllers/User";
 
 const router = Router();
 
@@ -9,7 +9,6 @@ route.post(POST);
 
 // Routes using user id
 const idRoute = router.route('/user/:id');
-idRoute.get(GET);
 idRoute.patch(PATCH);
 idRoute.delete(DELETE);
 

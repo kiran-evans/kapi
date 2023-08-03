@@ -42,21 +42,6 @@ export const POST = (async (req, res) => {
     }
 }) satisfies RequestHandler;
 
-// Get one by id
-export const GET = (async (req, res) => {
-    try {
-        const { rows, rowCount } = await pool.query(`SELECT (id, email) FROM users WHERE id = ${req.params.id}`);
-
-        if (!rowCount) return res.status(404).send();
-
-        res.status(200).json(rows[0]);
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {

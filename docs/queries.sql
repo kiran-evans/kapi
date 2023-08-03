@@ -38,5 +38,6 @@ CREATE TYPE order_item AS (
 CREATE TABLE IF NOT EXISTS orders (
     id BIGSERIAL PRIMARY KEY,
     user_id bigint REFERENCES users ON DELETE SET NULL,
+    date_placed bigint NOT NULL,
     items order_item[] NOT NULL
 )

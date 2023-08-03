@@ -1,27 +1,6 @@
 import { RequestHandler } from "express";
 import { pool } from "../pg";
 
-// Create new order
-export const POST = (async (req, res) => {
-    try {
-        const { user_id, items } = req.body;
-        await pool.query(
-            `INSERT INTO orders (
-                user_id,
-                items
-            ) VALUES (
-                '${user_id}',
-                '${items}'
-            )`);
-
-        res.status(201).send();
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
 // Get one by id
 export const GET = (async (req, res) => {
     try {
