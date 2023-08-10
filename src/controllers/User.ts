@@ -1,4 +1,3 @@
-import { compare, genSalt, hash } from 'bcryptjs';
 import { RequestHandler } from "express";
 import { pool } from "../pg";
 
@@ -89,15 +88,6 @@ export const DELETE = (async (req, res) => {
 // Login
 export const AUTH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE email = '${req.body.email}'`);
-        if (!rowCount) return res.status(401).json("Incorrect username or password.");
-
-        const passwordIsCorrect = await compare(req.body.password, rows[0].password);
-        if (!passwordIsCorrect) return res.status(401).json("Incorrect username or password.");
-
-        const { password, ...returnedBody } = rows[0];
-        
-        res.status(200).json(returnedBody);
 
     } catch (err: any) {
         console.error(err);

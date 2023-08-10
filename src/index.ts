@@ -1,5 +1,4 @@
 // App setup and config
-
 import express from 'express';
 const app = express();
 app.use(express.json());
@@ -15,7 +14,6 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Routes
-
 import productRouter from './routers/productRouter';
 app.use(productRouter);
 
@@ -28,6 +26,11 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
+// Passport
+import passport from 'passport';
+import { LocalStrategy } from './passport';
+passport.use(LocalStrategy);
+
 // Create tables
 import { createTables } from './pg';
 (async () => {
@@ -35,7 +38,6 @@ import { createTables } from './pg';
 })();
 
 // Server start
-
 const port = process.env.PORT;
 app.listen(port, () => {
   console.log(`[server]: Server is running on http://localhost:${port}`);
