@@ -1,26 +1,27 @@
-import { pbkdf2Sync } from 'crypto';
+import { pbkdf2Sync, timingSafeEqual } from 'crypto';
 import dotenv from 'dotenv';
 import { Strategy } from "passport-local";
+import { User } from './controllers/User';
 import { pool } from "./pg";
 
 dotenv.config({
     path: '../.env'
 });
 
-const passwordIsValid = (enteredPw: string, hashedPw: string, salt: string) => {
-    const hashedEnteredPw = pbkdf2Sync(enteredPw, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST)).toString("hex");
-    return hashedPw === hashedEnteredPw;
+const passwordIsValid = (enteredPw: string, hashedPw: Buffer, salt: Buffer) => {
+    const hashedEnteredPw = pbkdf2Sync(enteredPw, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST));
+    return timingSafeEqual(hashedEnteredPw, hashedPw);
 }
 
-export const LocalStrategy = new Strategy(async (enteredEmail, enteredPassword, cb) => {
-    const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE email = '${enteredEmail}'`);
+export const LocalStrategy = new Strategy(async (username, password, cb) => {    
+    const { rows, rowCount }: { rows: User[], rowCount: number } = await pool.query(`SELECT * FROM users WHERE email = '${username}'`);
     if (!rowCount) return cb(null, false);
 
     const user = { ...rows[0] };
 
-    if (!passwordIsValid(enteredPassword, user.hashedPw, user.salt)) return cb(null, false);
+    if (!passwordIsValid(password, Buffer.from(user.hashed_pw, "hex"), Buffer.from(user.salt, "hex"))) return cb(null, false);
 
-    const { password, ...returnedBody } = user;
+    const { hashed_pw, ...returnedBody } = user;
     
     return cb(null, returnedBody);
 });

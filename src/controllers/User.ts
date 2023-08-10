@@ -1,12 +1,18 @@
 import { pbkdf2, randomBytes } from 'crypto';
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
-import passport from "passport";
 import { pool } from "../pg";
 
 dotenv.config({
     path: '../.env'
 });
+
+export type User = {
+    id: number,
+    email: string,
+    hashed_pw: string,
+    salt: string
+}
 
 // Create new user
 export const POST = (async (req, res) => {
@@ -23,7 +29,7 @@ export const POST = (async (req, res) => {
             const { rows } = await pool.query(
                 `INSERT INTO users (
                     email,
-                    hashedPw,
+                    hashed_pw,
                     salt
                 ) VALUES (
                     '${req.body.email}',
@@ -97,16 +103,7 @@ export const DELETE = (async (req, res) => {
 // Login
 export const LOGIN = (async (req, res) => {
     try {
-        passport.authenticate('local', (err: any, user: any) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send();
-            }
-
-            if (!user) return res.status(401).json("Incorrect email or password");
-
-            res.status(200).json(user);
-        })
+        res.status(200).json(req.user);
     } catch (err: any) {
         console.error(err);
         res.status(500).send();

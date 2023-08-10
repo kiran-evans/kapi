@@ -30,8 +30,11 @@ app.use(orderRouter);
 
 // Verification and session
 import passport from 'passport';
+app.use(passport.initialize());
+app.use(passport.session());
+
 import { LocalStrategy } from './passport';
-passport.use(LocalStrategy);
+passport.use('local', LocalStrategy);
 
 import session from 'express-session';
 app.use(session({
@@ -57,7 +60,6 @@ passport.deserializeUser((user: Express.User | null | undefined | false, cb) => 
 });
 
 app.use(passport.authenticate('session'));
-
 // Create tables
 import { createTables } from './pg';
 (async () => {
