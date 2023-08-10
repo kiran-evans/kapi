@@ -22,6 +22,9 @@ idRoute.delete(DELETE, param('id').notEmpty().isAlphanumeric());
 
 // Login route
 const loginRoute = router.route('/login');
-loginRoute.post(LOGIN);
+loginRoute.post(LOGIN,
+    body('email').trim().notEmpty().isEmail(),
+    body('password').notEmpty().isAlphanumeric()
+);
 
 export default router;
