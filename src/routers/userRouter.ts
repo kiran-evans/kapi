@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from 'express-validator';
-import { AUTH, DELETE, PATCH, POST } from "../controllers/User";
+import { DELETE, LOGIN, PATCH, POST } from "../controllers/User";
 
 const router = Router();
 
@@ -20,8 +20,8 @@ idRoute.patch(PATCH,
 );
 idRoute.delete(DELETE, param('id').notEmpty().isAlphanumeric());
 
-// Auth route
-const authRoute = router.route('/auth');
-authRoute.post(AUTH);
+// Login route
+const loginRoute = router.route('/login');
+loginRoute.post(LOGIN);
 
 export default router;

@@ -4,7 +4,9 @@ const app = express();
 app.use(express.json());
 
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({
+    path: '../.env'
+});
 
 import cors, { CorsOptions } from 'cors';
 const corsOptions: CorsOptions = {

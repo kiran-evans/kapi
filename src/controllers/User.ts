@@ -1,8 +1,11 @@
+import dotenv from 'dotenv';
 import { RequestHandler } from "express";
+import passport from "passport";
 import { pool } from "../pg";
 
-import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({
+    path: '../.env'
+});
 
 // Create new user
 export const POST = (async (req, res) => {
@@ -86,9 +89,18 @@ export const DELETE = (async (req, res) => {
 }) satisfies RequestHandler;
 
 // Login
-export const AUTH = (async (req, res) => {
+export const LOGIN = (async (req, res) => {
     try {
+        passport.authenticate('local', (err: any, user: any) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send();
+            }
 
+            if (!user) return res.status(401).json("Incorrect email or password");
+
+            res.status(200).json(user);
+        })
     } catch (err: any) {
         console.error(err);
         res.status(500).send();
