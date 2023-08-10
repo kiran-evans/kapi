@@ -26,10 +26,35 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
-// Passport
+// Verification and session
 import passport from 'passport';
 import { LocalStrategy } from './passport';
 passport.use(LocalStrategy);
+
+import session from 'express-session';
+app.use(session({
+    secret: process.env.SESSION_SECRET as string,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: true
+    }
+}));
+
+passport.serializeUser((user, cb) => {
+    process.nextTick(() => {
+        return cb(null, user);
+    });
+});
+
+passport.deserializeUser((user: Express.User | null | undefined | false, cb) => {
+    process.nextTick(() => {
+        return cb(null, user);
+    });
+});
+
+app.use(passport.authenticate('session'));
 
 // Create tables
 import { createTables } from './pg';
