@@ -1,9 +1,14 @@
 import { pbkdf2Sync } from 'crypto';
+import dotenv from 'dotenv';
 import { Strategy } from "passport-local";
 import { pool } from "./pg";
 
+dotenv.config({
+    path: '../.env'
+});
+
 const passwordIsValid = (enteredPw: string, hashedPw: string, salt: string) => {
-    const hashedEnteredPw = pbkdf2Sync(enteredPw, salt, 10000, 64, 'sha512').toString("hex");
+    const hashedEnteredPw = pbkdf2Sync(enteredPw, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST)).toString("hex");
     return hashedPw === hashedEnteredPw;
 }
 

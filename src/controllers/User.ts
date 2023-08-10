@@ -1,3 +1,4 @@
+import { pbkdf2, randomBytes } from 'crypto';
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import passport from "passport";
@@ -10,33 +11,38 @@ dotenv.config({
 // Create new user
 export const POST = (async (req, res) => {
     try {
-        const { email, password } = req.body;
-
         // Hash new pw
-        const salt = await genSalt(Number(process.env.SALT_ROUNDS));
-        const hashedPw = await hash(password, salt);
+        const salt = randomBytes(Number(process.env.SALT_ROUNDS));
+        pbkdf2(req.body.password, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST), async (err, hashedPw) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send();
+            }
 
-        // Insert new user record and return id
-        const { rows } = await pool.query(
-            `INSERT INTO users (
-                email,
-                password
-            ) VALUES (
-                '${email}',
-                '${hashedPw}'
-            ) RETURNING id`
-        );
-        
-        // Create new empty cart
-        await pool.query(
-            `INSERT INTO carts (
-                user_id
-            ) VALUES (
-                ${rows[0].id}
-            )`
-        );
+            // Insert new user record and return id
+            const { rows } = await pool.query(
+                `INSERT INTO users (
+                    email,
+                    hashedPw,
+                    salt
+                ) VALUES (
+                    '${req.body.email}',
+                    '${hashedPw.toString("hex")}',
+                    '${salt.toString("hex")}'
+                ) RETURNING id`
+            );
+            
+            // Create new empty cart
+            await pool.query(
+                `INSERT INTO carts (
+                    user_id
+                ) VALUES (
+                    ${rows[0].id}
+                )`
+            );
 
-        res.status(201).send();
+            res.status(201).send();
+        });
 
     } catch (err: any) {
         console.error(err);
