@@ -1,40 +1,54 @@
-import { compare, genSalt, hash } from 'bcryptjs';
+import { pbkdf2, randomBytes } from 'crypto';
+import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { pool } from "../pg";
 
-import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({
+    path: '../.env'
+});
+
+export type User = {
+    id: number,
+    email: string,
+    hashed_pw: string,
+    salt: string
+}
 
 // Create new user
 export const POST = (async (req, res) => {
     try {
-        const { email, password } = req.body;
-
         // Hash new pw
-        const salt = await genSalt(Number(process.env.SALT_ROUNDS));
-        const hashedPw = await hash(password, salt);
+        const salt = randomBytes(Number(process.env.SALT_ROUNDS));
+        pbkdf2(req.body.password, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST), async (err, hashedPw) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send();
+            }
 
-        // Insert new user record and return id
-        const { rows } = await pool.query(
-            `INSERT INTO users (
-                email,
-                password
-            ) VALUES (
-                '${email}',
-                '${hashedPw}'
-            ) RETURNING id`
-        );
-        
-        // Create new empty cart
-        await pool.query(
-            `INSERT INTO carts (
-                user_id
-            ) VALUES (
-                ${rows[0].id}
-            )`
-        );
+            // Insert new user record and return id
+            const { rows } = await pool.query(
+                `INSERT INTO users (
+                    email,
+                    hashed_pw,
+                    salt
+                ) VALUES (
+                    '${req.body.email}',
+                    '${hashedPw.toString("hex")}',
+                    '${salt.toString("hex")}'
+                ) RETURNING id`
+            );
+            
+            // Create new empty cart
+            await pool.query(
+                `INSERT INTO carts (
+                    user_id
+                ) VALUES (
+                    ${rows[0].id}
+                )`
+            );
 
-        res.status(201).send();
+            res.status(201).send();
+        });
 
     } catch (err: any) {
         console.error(err);
@@ -87,18 +101,9 @@ export const DELETE = (async (req, res) => {
 }) satisfies RequestHandler;
 
 // Login
-export const AUTH = (async (req, res) => {
+export const LOGIN = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE email = '${req.body.email}'`);
-        if (!rowCount) return res.status(401).json("Incorrect username or password.");
-
-        const passwordIsCorrect = await compare(req.body.password, rows[0].password);
-        if (!passwordIsCorrect) return res.status(401).json("Incorrect username or password.");
-
-        const { password, ...returnedBody } = rows[0];
-        
-        res.status(200).json(returnedBody);
-
+        res.status(200).json(req.user);
     } catch (err: any) {
         console.error(err);
         res.status(500).send();

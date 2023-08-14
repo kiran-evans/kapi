@@ -1,7 +1,9 @@
 import { Pool } from 'pg';
 
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({
+    path: '../.env'
+});
 
 // Configure pg
 export const pool = new Pool({
@@ -27,7 +29,8 @@ export const createTables = async () => {
         CREATE TABLE IF NOT EXISTS users (
             id BIGSERIAL PRIMARY KEY,
             email varchar(255) NOT NULL UNIQUE,
-            password text NOT NULL
+            hashed_pw text NOT NULL,
+            salt text NOT NULL
         )
     `);
 
