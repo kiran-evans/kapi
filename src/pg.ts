@@ -28,9 +28,7 @@ export const createTables = async () => {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
             id BIGSERIAL PRIMARY KEY,
-            email varchar(255) NOT NULL UNIQUE,
-            hashed_pw text NOT NULL,
-            salt text NOT NULL
+            auth_id text NOT NULL UNIQUE
         )
     `);
 
@@ -58,4 +56,6 @@ export const createTables = async () => {
             items order_item[] NOT NULL
         )
     `);
+
+    console.log("[server] pg tables complete");    
 }
