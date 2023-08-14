@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { body, param } from 'express-validator';
-import passport from "passport";
 import { DELETE, LOGIN, PATCH, POST } from "../controllers/User";
 
 const router = Router();
@@ -26,9 +25,7 @@ idRoute.delete(DELETE, param('id').notEmpty().isAlphanumeric());
 // Login route
 const loginRoute = router.route('/login');
 loginRoute.post(
-    body('email').trim().notEmpty().isEmail(),
-    body('password').notEmpty().isAlphanumeric(),
-    passport.authenticate('local'),
+    body('idToken').notEmpty().isJWT(),
     LOGIN
 );
 

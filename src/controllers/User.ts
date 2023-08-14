@@ -1,6 +1,6 @@
-import { pbkdf2, randomBytes } from 'crypto';
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
+import { fb } from '../firebase';
 import { pool } from "../pg";
 
 dotenv.config({
@@ -17,38 +17,33 @@ export type User = {
 // Create new user
 export const POST = (async (req, res) => {
     try {
-        // Hash new pw
-        const salt = randomBytes(Number(process.env.SALT_ROUNDS));
-        pbkdf2(req.body.password, salt, Number(process.env.ITERATIONS), Number(process.env.KEYLEN), String(process.env.DIGEST), async (err, hashedPw) => {
-            if (err) {
-                console.error(err);
-                return res.status(500).send();
-            }
-
-            // Insert new user record and return id
-            const { rows } = await pool.query(
-                `INSERT INTO users (
-                    email,
-                    hashed_pw,
-                    salt
-                ) VALUES (
-                    '${req.body.email}',
-                    '${hashedPw.toString("hex")}',
-                    '${salt.toString("hex")}'
-                ) RETURNING id`
-            );
-            
-            // Create new empty cart
-            await pool.query(
-                `INSERT INTO carts (
-                    user_id
-                ) VALUES (
-                    ${rows[0].id}
-                )`
-            );
-
-            res.status(201).send();
+        // Create new Firebase Auth user
+        const user = await fb.auth().createUser({
+            email: req.body.email,
+            password: req.body.password
         });
+
+        // Insert new user record and return id
+        const { rows } = await pool.query(
+            `INSERT INTO users (
+                email,
+                auth_id
+            ) VALUES (
+                '${req.body.email}',
+                '${user.uid}'
+            ) RETURNING id`
+        );
+        
+        // Create new empty cart
+        await pool.query(
+            `INSERT INTO carts (
+                user_id
+            ) VALUES (
+                ${rows[0].id}
+            )`
+        );
+
+        res.status(201).send();
 
     } catch (err: any) {
         console.error(err);
@@ -103,7 +98,14 @@ export const DELETE = (async (req, res) => {
 // Login
 export const LOGIN = (async (req, res) => {
     try {
-        res.status(200).json(req.user);
+        // Verify encoded id token passed from client (checks user has been signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.body.idToken);
+
+        // Get the user data from the db
+        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
+        if (!rowCount) throw `Query returned no users with auth_id = '${idToken.uid}'`;
+        res.status(200).json(rows[0]);
+        
     } catch (err: any) {
         console.error(err);
         res.status(500).send();
