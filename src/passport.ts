@@ -13,15 +13,15 @@ const passwordIsValid = (enteredPw: string, hashedPw: Buffer, salt: Buffer) => {
     return timingSafeEqual(hashedEnteredPw, hashedPw);
 }
 
-export const LocalStrategy = new Strategy(async (username, password, cb) => {    
+export const LocalStrategy = new Strategy(async (username, password, done) => {    
     const { rows, rowCount }: { rows: User[], rowCount: number } = await pool.query(`SELECT * FROM users WHERE email = '${username}'`);
-    if (!rowCount) return cb(null, false);
+    if (!rowCount) return done(null, false);
 
     const user = { ...rows[0] };
 
-    if (!passwordIsValid(password, Buffer.from(user.hashed_pw, "hex"), Buffer.from(user.salt, "hex"))) return cb(null, false);
+    if (!passwordIsValid(password, Buffer.from(user.hashed_pw, "hex"), Buffer.from(user.salt, "hex"))) return done(null, false);
 
     const { hashed_pw, ...returnedBody } = user;
     
-    return cb(null, returnedBody);
+    done(null, returnedBody);
 });

@@ -28,38 +28,50 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
-// Verification and session
+// Session
+import SQLite from 'connect-sqlite3';
+import session, { Store } from 'express-session';
 import passport from 'passport';
-app.use(passport.initialize());
-app.use(passport.session());
+import path from 'path';
 
-import { LocalStrategy } from './passport';
-passport.use('local', LocalStrategy);
+app.use(express.static(path.join(__dirname, 'public')));
 
-import session from 'express-session';
+const SQLiteStore = SQLite(session);
 app.use(session({
     secret: process.env.SESSION_SECRET as string,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         httpOnly: true,
         secure: true
-    }
+    },
+    store: new SQLiteStore({
+        db: 'sessions.db',
+        dir: './var/db'
+    }) as Store
 }));
 
-passport.serializeUser((user, cb) => {
-    process.nextTick(() => {
-        return cb(null, user);
-    });
-});
-
-passport.deserializeUser((user: Express.User | null | undefined | false, cb) => {
-    process.nextTick(() => {
-        return cb(null, user);
-    });
-});
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(passport.authenticate('session'));
+
+// Verification
+import { LocalStrategy } from './passport';
+passport.use(LocalStrategy);
+
+passport.serializeUser((user, done) => {
+    process.nextTick(() => {
+        done(null, user);
+    });
+});
+
+passport.deserializeUser((user: Express.User | null | undefined | false, done) => {
+    process.nextTick(() => {
+        done(null, user);
+    });
+});
+
 // Create tables
 import { createTables } from './pg';
 (async () => {
