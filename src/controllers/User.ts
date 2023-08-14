@@ -17,20 +17,15 @@ export type User = {
 // Create new user
 export const POST = (async (req, res) => {
     try {
-        // Create new Firebase Auth user
-        const user = await fb.auth().createUser({
-            email: req.body.email,
-            password: req.body.password
-        });
+        // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.body.idToken);
 
         // Insert new user record and return id
         const { rows } = await pool.query(
             `INSERT INTO users (
-                email,
                 auth_id
             ) VALUES (
-                '${req.body.email}',
-                '${user.uid}'
+                '${idToken.uid}'
             ) RETURNING id`
         );
         
