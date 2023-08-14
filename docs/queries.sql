@@ -11,8 +11,7 @@ CREATE TABLE IF NOT EXISTS products (
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
-    email varchar(255) NOT NULL UNIQUE,
-    password text NOT NULL
+    auth_id text NOT NULL UNIQUE
 )
 
 -- CART
