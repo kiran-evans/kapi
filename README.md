@@ -7,14 +7,14 @@ Carts do not need `CREATE` or `DELETE` operations since they will always be crea
 
 ### Create user
 1. User enters details in client and submits them
-2. Client sends details by JWT to server
-3. Server creates new Firebase Auth user
-4. Server creates new user in PG DB with user's Firebase Auth id
+2. Firebase client creates new Auth user and establishes a session
+3. idToken is sent to server
+4. Server decodes idToken
+5. Server creates new user in PG DB with user's Firebase Auth id
 
 ### Login use
 1. User enters credentials in client and submits them
-2. Client sends credentials by JWT to server
-3. Server verifies credentials with Firebase Auth
-4.
-    a. If verified, server gets user data from PG DB
-    b. If not verified, server responds with not authenticated
+2. Firebase authenticates the user
+3. idToken is sent to server
+4. Server decodes idToken
+5. Server gets user from PG DB with user's Firebase Auth id
