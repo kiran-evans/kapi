@@ -56,4 +56,6 @@ export const createTables = async () => {
             items order_item[] NOT NULL
         )
     `);
+
+    console.log("[server] pg tables complete");    
 }
