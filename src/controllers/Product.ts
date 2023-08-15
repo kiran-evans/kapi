@@ -4,17 +4,24 @@ import { pool } from "../pg";
 // Create new product
 export const POST = (async (req, res) => {
     try {
-        const { name, description, price } = req.body;
-        await pool.query(
-            `INSERT INTO products (
-                name,
-                description,
-                price
-            ) VALUES (
-                '${name}',
-                '${description}',
-                ${price}
-            )`);
+        const products: Array<{
+            name: string,
+            description: string,
+            price: number
+        }> = req.body;
+
+        products.forEach(async (product) => {
+            await pool.query(
+                `INSERT INTO products (
+                    name,
+                    description,
+                    price
+                ) VALUES (
+                    '${product.name}',
+                    '${product.description}',
+                    ${product.price - 0.01}
+                )`);
+        })
 
         res.status(201).send();
 
