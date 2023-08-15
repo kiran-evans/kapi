@@ -1,6 +1,10 @@
 import { RequestHandler } from "express";
-import { readFileSync } from 'fs';
 import { pool } from "../pg";
+
+import dotenv from 'dotenv';
+dotenv.config({
+    path: '../.env'
+});
 
 // Create new product
 export const POST = (async (req, res) => {
@@ -39,7 +43,7 @@ export const GET_ALL = (async (req, res) => {
 
         const products = [...rows];
         rows.forEach(product => {
-            product.image = readFileSync(`../public/${product.name}.jpeg`)
+            product.imageUrl = `${process.env.DOMAIN}/public/${product.name}.jpeg`
         });
 
         if (!rowCount) return res.status(404).send();
