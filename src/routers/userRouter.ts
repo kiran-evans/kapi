@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from 'express-validator';
-import { DELETE, LOGIN, PATCH, POST } from "../controllers/User";
+import { DELETE, GET, PATCH, POST } from "../controllers/User";
 
 const router = Router();
 
@@ -11,19 +11,20 @@ route.post(
     POST
 );
 
-// Routes using user id
-const idRoute = router.route('/user/:id');
-idRoute.patch(
-    body('idToken').notEmpty().isJWT(),
+// Routes using JWT-encoded credentials
+const authIdRoute = router.route('/user/:idToken');
+authIdRoute.get(
+    param('idToken').notEmpty().isJWT(),
+    GET
+);
+authIdRoute.patch(
+    param('idToken').notEmpty().isJWT(),
+    body('auth_id').notEmpty().isAlphanumeric(),
     PATCH
 );
-idRoute.delete(DELETE, param('id').notEmpty().isAlphanumeric());
-
-// Login route
-const loginRoute = router.route('/login');
-loginRoute.post(
-    body('idToken').notEmpty().isJWT(),
-    LOGIN
+authIdRoute.delete(
+    param('idToken').notEmpty().isJWT(),
+    DELETE
 );
 
 export default router;
