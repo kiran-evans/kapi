@@ -17,6 +17,9 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 // Routes
+import path from 'path';
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 import productRouter from './routers/productRouter';
 app.use(productRouter);
 

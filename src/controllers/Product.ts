@@ -1,20 +1,32 @@
 import { RequestHandler } from "express";
 import { pool } from "../pg";
 
+import dotenv from 'dotenv';
+dotenv.config({
+    path: '../.env'
+});
+
 // Create new product
 export const POST = (async (req, res) => {
     try {
-        const { name, description, price } = req.body;
-        await pool.query(
-            `INSERT INTO products (
-                name,
-                description,
-                price
-            ) VALUES (
-                '${name}',
-                '${description}',
-                ${price}
-            )`);
+        const products: Array<{
+            name: string,
+            description: string,
+            price: number
+        }> = req.body;
+
+        products.forEach(async (product) => {
+            await pool.query(
+                `INSERT INTO products (
+                    name,
+                    description,
+                    price
+                ) VALUES (
+                    '${product.name}',
+                    '${product.description}',
+                    ${product.price - 0.01}
+                )`);
+        })
 
         res.status(201).send();
 
@@ -29,9 +41,14 @@ export const GET_ALL = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM products`);
 
+        const products = [...rows];
+        rows.forEach(product => {
+            product.imageUrl = `${process.env.DOMAIN}/public/${product.name}.jpeg`
+        });
+
         if (!rowCount) return res.status(404).send();
 
-        res.status(200).json(rows);
+        res.status(200).json(products);
 
     } catch (err: any) {
         console.error(err);
