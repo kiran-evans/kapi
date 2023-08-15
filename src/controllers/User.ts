@@ -46,10 +46,35 @@ export const POST = (async (req, res) => {
     }
 }) satisfies RequestHandler;
 
+// Authenticate that the request has come from the logged in user
+// Returns the idToken's uid if valid. Firebase Admin SDK will throw an error if invalid
+const authenticateRequest = async (reqIdToken: string): Promise<string> => {
+    // Verify encoded id token passed from client (checks user has been signed in on the client side)
+    const idToken = await fb.auth().verifyIdToken(reqIdToken);
+    return idToken.uid;
+}
+
+// Get one by auth_id (will only return user data if the client is logged in with that user)
+export const GET = (async (req, res) => {
+    try {
+        const uid = await authenticateRequest(req.params.idToken);
+
+        // Get the user data from the db
+        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${uid}'`);
+        if (!rowCount) throw `Query returned no users with auth_id = '${uid}'`;
+        res.status(200).json(rows[0]);
+        
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).send();
+    }
+}) satisfies RequestHandler;
+
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE id = ${req.params.id}`);
+        const uid = await authenticateRequest(req.params.idToken);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${uid}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -78,29 +103,13 @@ export const PATCH = (async (req, res) => {
 // Delete one by id
 export const DELETE = (async (req, res) => {
     try {
-        const { rowCount } = await pool.query(`DELETE FROM users WHERE id = ${req.params.id}`);
+        const uid = await authenticateRequest(req.params.idToken);
+        const { rowCount } = await pool.query(`DELETE FROM users WHERE auth_id = '${uid}'`);
 
         if (!rowCount) return res.status(404).send();
 
         res.status(204).send();
 
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Login
-export const LOGIN = (async (req, res) => {
-    try {
-        // Verify encoded id token passed from client (checks user has been signed in on the client side)
-        const idToken = await fb.auth().verifyIdToken(req.body.idToken);
-
-        // Get the user data from the db
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        if (!rowCount) throw `Query returned no users with auth_id = '${idToken.uid}'`;
-        res.status(200).json(rows[0]);
-        
     } catch (err: any) {
         console.error(err);
         res.status(500).send();
