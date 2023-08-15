@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import { readFileSync } from 'fs';
 import { pool } from "../pg";
 
 // Create new product
@@ -36,9 +37,14 @@ export const GET_ALL = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM products`);
 
+        const products = [...rows];
+        rows.forEach(product => {
+            product.image = readFileSync(`../public/${product.name}.jpeg`)
+        });
+
         if (!rowCount) return res.status(404).send();
 
-        res.status(200).json(rows);
+        res.status(200).json(products);
 
     } catch (err: any) {
         console.error(err);
