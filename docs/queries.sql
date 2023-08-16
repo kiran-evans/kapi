@@ -1,23 +1,26 @@
 -- PRODUCT
 
 CREATE TABLE IF NOT EXISTS products (
-    id BIGSERIAL PRIMARY KEY,
+    id uuid PRIMARY KEY,
     name varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
-    price money NOT NULL DEFAULT 0.00
+    price money NOT NULL DEFAULT 0.00,
+    categories text[],
+    sizes varchar(15)[],
+    colours varchar(15)[]
 )
 
 -- USER
 
 CREATE TABLE IF NOT EXISTS users (
-    id BIGSERIAL PRIMARY KEY,
+    id uuid PRIMARY KEY,
     auth_id text NOT NULL UNIQUE
 )
 
 -- CART
 
 CREATE TABLE IF NOT EXISTS carts (
-    id BIGSERIAL PRIMARY KEY,
+    id uuid PRIMARY KEY,
     user_id bigint REFERENCES users ON DELETE CASCADE,
     items bigint[] NOT NULL DEFAULT '{}'
 )
@@ -35,7 +38,7 @@ CREATE TYPE order_item AS (
 -- An order is essentially a receipt which is created when a user checks out their cart
 -- If a user account is deleted, the user_id column should be set to NULL. This allows orders to stay in the database even if the user account has been deleted
 CREATE TABLE IF NOT EXISTS orders (
-    id BIGSERIAL PRIMARY KEY,
+    id uuid PRIMARY KEY,
     user_id bigint REFERENCES users ON DELETE SET NULL,
     date_placed bigint NOT NULL,
     items order_item[] NOT NULL
