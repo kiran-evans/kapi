@@ -63,7 +63,10 @@ export const GET = (async (req, res) => {
 
         if (!rowCount) return res.status(404).send();
 
-        res.status(200).json(rows[0]);
+        const productBody = { ...rows[0] };
+        productBody.imageUrl = `${process.env.DOMAIN}/public/${productBody.name}.jpeg`;
+
+        res.status(200).json(productBody);
 
     } catch (err: any) {
         console.error(err);
