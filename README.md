@@ -18,3 +18,15 @@ Carts do not need `CREATE` or `DELETE` operations since they will always be crea
 3. idToken is sent to server
 4. Server decodes idToken
 5. Server gets user from PG DB with user's Firebase Auth id
+
+
+## Product Info
+
+On a GET single product, the data returned to the client should contain the following:
+- id
+- name
+- description
+- image url
+- categories
+- sizes
+- colours
