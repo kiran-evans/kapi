@@ -18,40 +18,50 @@ export const pool = new Pool({
 export const createTables = async () => {
     await pool.query(`
         CREATE TABLE IF NOT EXISTS products (
-            id BIGSERIAL PRIMARY KEY,
+            id uuid PRIMARY KEY,
             name varchar(255) NOT NULL,
             description varchar(255) NOT NULL,
-            price money NOT NULL DEFAULT 0.00
+            price money NOT NULL DEFAULT 0.00,
+            categories text[],
+            sizes varchar(15)[],
+            colours varchar(15)[]
         )
     `);
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS users (
-            id BIGSERIAL PRIMARY KEY,
+            id uuid PRIMARY KEY,
             auth_id text NOT NULL UNIQUE
         )
     `);
 
     await pool.query(`
+        CREATE TYPE cart_item AS (
+            product_id uuid REFERENCES products ON DELETE CASCADE,
+            quantity int NOT NULL DEFAULT 1
+        );
+    `);
+
+    await pool.query(`
         CREATE TABLE IF NOT EXISTS carts (
-            id BIGSERIAL PRIMARY KEY,
-            user_id bigint REFERENCES users ON DELETE CASCADE,
-            items bigint[] NOT NULL DEFAULT '{}'
+            id uuid PRIMARY KEY,
+            user_id uuid REFERENCES users ON DELETE CASCADE,
+            items cart_item[] NOT NULL DEFAULT '{}'
         )
     `);
 
-    // await pool.query(`
-    //     CREATE TYPE order_item AS (
-    //         name varchar(255),
-    //         price money,
-    //         quantity int
-    //     );
-    // `);
+    await pool.query(`
+        CREATE TYPE order_item AS (
+            name varchar(255) NOT NULL,
+            price money NOT NULL,
+            quantity int NOT NULL
+        );
+    `);
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS orders (
-            id BIGSERIAL PRIMARY KEY,
-            user_id bigint REFERENCES users ON DELETE SET NULL,
+            id uuid PRIMARY KEY,
+            user_id uuid REFERENCES users ON DELETE SET NULL,
             date_placed bigint NOT NULL,
             items order_item[] NOT NULL
         )
