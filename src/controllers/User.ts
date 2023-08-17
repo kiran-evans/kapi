@@ -91,7 +91,7 @@ export const PATCH = (async (req, res) => {
         await pool.query(
             `UPDATE users SET
                 email='${newBody.email}'
-                WHERE id = ${req.params.id}
+                WHERE id = '${req.params.id}'
             `)
 
         res.status(204).send();

@@ -77,7 +77,7 @@ export const GET_ALL = (async (req, res) => {
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = '${req.params.id}'`);
 
         if (!rowCount) return res.status(404).send();
 

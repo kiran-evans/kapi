@@ -4,7 +4,7 @@ import { pool } from "../pg";
 // Get one by user_id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -19,7 +19,7 @@ export const GET = (async (req, res) => {
 // Update one by user_id
 export const PATCH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -36,7 +36,7 @@ export const PATCH = (async (req, res) => {
                 name='${newBody.name}',
                 description='${newBody.description}',
                 price='${newBody.price}'
-                WHERE user_id = ${req.params.user_id}
+                WHERE user_id = '${req.params.user_id}'
             `)
 
         res.status(204).send();
@@ -52,7 +52,7 @@ export const CHECKOUT = (async (req, res) => {
     try {
         // Payment has succeeded
         // Find user's cart
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = ${req.params.user_id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
         if (!rowCount) return res.status(404).send();
         
         // Save cart items as an array of order_items (name, price, quantity)

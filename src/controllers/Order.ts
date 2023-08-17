@@ -4,7 +4,7 @@ import { pool } from "../pg";
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = '${req.params.id}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -19,7 +19,7 @@ export const GET = (async (req, res) => {
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = ${req.params.id}`);
+        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = '${req.params.id}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -35,7 +35,7 @@ export const PATCH = (async (req, res) => {
             `UPDATE orders SET
                 user_id='${newBody.user_id}',
                 items='${newBody.items}',
-                WHERE id = ${req.params.id}
+                WHERE id = '${req.params.id}'
             `)
 
         res.status(204).send();
@@ -49,7 +49,7 @@ export const PATCH = (async (req, res) => {
 // Delete one by id
 export const DELETE = (async (req, res) => {
     try {
-        const { rowCount } = await pool.query(`DELETE FROM orders WHERE id = ${req.params.id}`);
+        const { rowCount } = await pool.query(`DELETE FROM orders WHERE id = '${req.params.id}'`);
 
         if (!rowCount) return res.status(404).send();
 
