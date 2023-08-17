@@ -5,9 +5,9 @@ CREATE TABLE IF NOT EXISTS products (
     name varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
     price money NOT NULL DEFAULT 0.00,
-    categories text[],
-    sizes varchar(15)[],
-    colours varchar(15)[]
+    categories text[] NOT NULL,
+    sizes varchar(15)[] NOT NULL,
+    colours varchar(15)[] NOT NULL
 )
 
 -- USER

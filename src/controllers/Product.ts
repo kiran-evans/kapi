@@ -2,9 +2,16 @@ import { RequestHandler } from "express";
 import { pool } from "../pg";
 
 import dotenv from 'dotenv';
+import { toPgArray } from "../lib/util";
 dotenv.config({
     path: '../.env'
 });
+
+const pgArrayToJsArray = (pgArray: string): Array<any> => {
+    const jsArray: any[] = [];
+
+    return jsArray;
+}
 
 // Create new product
 export const POST = (async (req, res) => {
@@ -12,19 +19,30 @@ export const POST = (async (req, res) => {
         const products: Array<{
             name: string,
             description: string,
-            price: number
+            price: string,
+            categories: string[],
+            sizes: string[],
+            colours: string[]
         }> = req.body;
 
         products.forEach(async (product) => {
             await pool.query(
                 `INSERT INTO products (
+                    id,
                     name,
                     description,
-                    price
+                    price,
+                    categories,
+                    sizes,
+                    colours
                 ) VALUES (
+                    gen_random_uuid(),
                     '${product.name}',
                     '${product.description}',
-                    ${product.price - 0.01}
+                    ${Number(product.price.slice(1))},
+                    ${toPgArray(product.categories)},
+                    ${toPgArray(product.sizes)},
+                    ${toPgArray(product.colours)}
                 )`);
         })
 
@@ -67,52 +85,6 @@ export const GET = (async (req, res) => {
         productBody.imageUrl = `${process.env.DOMAIN}/public/${productBody.name}.jpeg`;
 
         res.status(200).json(productBody);
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Update one by id
-export const PATCH = (async (req, res) => {
-    try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = ${req.params.id}`);
-
-        if (!rowCount) return res.status(404).send();
-
-        let newBody = { ...rows[0] };
-        
-        for (const key in req.body) {
-            if (newBody[key] !== req.body[key]) {
-                newBody[key] = req.body[key];
-            }
-        }
-
-        await pool.query(
-            `UPDATE products SET
-                name='${newBody.name}',
-                description='${newBody.description}',
-                price='${newBody.price}'
-                WHERE id = ${req.params.id}
-            `)
-
-        res.status(204).send();
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Delete one by id
-export const DELETE = (async (req, res) => {
-    try {
-        const { rowCount } = await pool.query(`DELETE FROM products WHERE id = ${req.params.id}`);
-
-        if (!rowCount) return res.status(404).send();
-
-        res.status(204).send();
 
     } catch (err: any) {
         console.error(err);

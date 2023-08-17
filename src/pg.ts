@@ -21,10 +21,10 @@ export const createTables = async () => {
             id uuid PRIMARY KEY,
             name varchar(255) NOT NULL,
             description varchar(255) NOT NULL,
-            price money NOT NULL DEFAULT 0.00,
-            categories text[],
-            sizes varchar(15)[],
-            colours varchar(15)[]
+            price real NOT NULL DEFAULT 0.00,
+            categories text[] NOT NULL,
+            sizes varchar(15)[] NOT NULL,
+            colours varchar(15)[] NOT NULL
         )
     `);
 
@@ -35,12 +35,17 @@ export const createTables = async () => {
         )
     `);
 
-    await pool.query(`
-        CREATE TYPE cart_item AS (
-            product_id uuid REFERENCES products ON DELETE CASCADE,
-            quantity int NOT NULL DEFAULT 1
-        );
-    `);
+    // See if type exists
+    const cart_item = await pool.query(`SELECT 1 FROM pg_type WHERE typname = 'cart_item'`);
+    // Create it if it doesn't exist
+    if (!cart_item.rowCount) {
+        await pool.query(`
+            CREATE TYPE cart_item AS (
+                product_id uuid,
+                quantity int
+            );
+        `);
+    }    
 
     await pool.query(`
         CREATE TABLE IF NOT EXISTS carts (
@@ -50,14 +55,19 @@ export const createTables = async () => {
         )
     `);
 
-    await pool.query(`
-        CREATE TYPE order_item AS (
-            name varchar(255) NOT NULL,
-            price money NOT NULL,
-            quantity int NOT NULL
-        );
-    `);
-
+    // See if type exists
+    const order_item = await pool.query(`SELECT 1 FROM pg_type WHERE typname = 'order_item'`);
+    // Create it if it doesn't exist
+    if (!order_item.rowCount) {
+        await pool.query(`
+            CREATE TYPE order_item AS (
+                name varchar(255),
+                price real,
+                quantity int
+            );
+        `);
+    }
+    
     await pool.query(`
         CREATE TABLE IF NOT EXISTS orders (
             id uuid PRIMARY KEY,

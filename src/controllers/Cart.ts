@@ -68,10 +68,12 @@ export const CHECKOUT = (async (req, res) => {
         // Create a new order
         await pool.query(
             `INSERT INTO orders (
+                id,
                 user_id,
                 date_placed,
                 items
             ) VALUES (
+                gen_random_uuid(),
                 '${rows[0].user_id}',
                 ${Date.now()},
                 '${order_items}'
@@ -80,8 +82,10 @@ export const CHECKOUT = (async (req, res) => {
         // Clear the user's cart
         await pool.query(
             `INSERT INTO carts (
+                id,
                 items
             ) VALUES (
+                gen_random_uuid(),
                 '{}'
             )`);
 
