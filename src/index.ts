@@ -39,7 +39,6 @@ import { createTables } from './pg';
 })();
 
 // Server start
-const port = process.env.PORT;
-app.listen(port, () => {
-  console.log(`[server]: Server is running on http://localhost:${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`[server] server started on ${process.env.DOMAIN}`);
 });

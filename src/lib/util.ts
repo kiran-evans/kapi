@@ -12,9 +12,3 @@ export const toPgArray = (jsArray: Array<string | number>): string => {
     
     return pgArray;
 }
-
-export const toJsArray = (pgArray: string): Array<string | number> => {
-    let jsArray: Array<string | number> = [];
-
-    return jsArray;
-}
