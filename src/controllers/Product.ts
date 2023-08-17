@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { pool } from "../pg";
 
 import dotenv from 'dotenv';
+import { toPgArray } from "../lib/util";
 dotenv.config({
     path: '../.env'
 });
@@ -18,7 +19,7 @@ export const POST = (async (req, res) => {
         const products: Array<{
             name: string,
             description: string,
-            price: number,
+            price: string,
             categories: string[],
             sizes: string[],
             colours: string[]
@@ -38,10 +39,10 @@ export const POST = (async (req, res) => {
                     gen_random_uuid(),
                     '${product.name}',
                     '${product.description}',
-                    ${product.price - 0.01},
-                    ARRAY[${product.categories}],
-                    ARRAY[${product.sizes}],
-                    ARRAY[${product.colours}]
+                    ${Number(product.price.slice(1))},
+                    ${toPgArray(product.categories)},
+                    ${toPgArray(product.sizes)},
+                    ${toPgArray(product.colours)}
                 )`);
         })
 
