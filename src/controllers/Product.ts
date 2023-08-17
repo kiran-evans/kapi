@@ -6,21 +6,10 @@ dotenv.config({
     path: '../.env'
 });
 
-const jsArrayToPgArray = (jsArray: Array<string | number>): string => {
-    let pgArray = "{";
+const pgArrayToJsArray = (pgArray: string): Array<any> => {
+    const jsArray: any[] = [];
 
-    for (let i = 0; i++; i < jsArray.length) {
-        // Add the element to the array
-        pgArray += jsArray[i];
-
-        // If it's not the last element, add a comma
-        if (i < jsArray.length - 1) pgArray += ",";
-    }
-
-    // Add the closing bracket
-    pgArray += "}";
-
-    return pgArray;
+    return jsArray;
 }
 
 // Create new product
@@ -50,9 +39,9 @@ export const POST = (async (req, res) => {
                     '${product.name}',
                     '${product.description}',
                     ${product.price - 0.01},
-                    '${jsArrayToPgArray(product.categories)}',
-                    '${jsArrayToPgArray(product.sizes)}',
-                    '${jsArrayToPgArray(product.colours)}'
+                    ARRAY[${product.categories}],
+                    ARRAY[${product.sizes}],
+                    ARRAY[${product.colours}]
                 )`);
         })
 
