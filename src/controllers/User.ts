@@ -23,8 +23,10 @@ export const POST = (async (req, res) => {
         // Insert new user record and return id
         const { rows } = await pool.query(
             `INSERT INTO users (
+                id,
                 auth_id
             ) VALUES (
+                gen_random_uuid(),
                 '${idToken.uid}'
             ) RETURNING id`
         );

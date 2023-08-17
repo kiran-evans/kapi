@@ -22,9 +22,9 @@ export const createTables = async () => {
             name varchar(255) NOT NULL,
             description varchar(255) NOT NULL,
             price money NOT NULL DEFAULT 0.00,
-            categories text[],
-            sizes varchar(15)[],
-            colours varchar(15)[]
+            categories text[] NOT NULL,
+            sizes varchar(15)[] NOT NULL,
+            colours varchar(15)[] NOT NULL
         )
     `);
 
@@ -36,10 +36,12 @@ export const createTables = async () => {
     `);
 
     await pool.query(`
-        CREATE TYPE cart_item AS (
-            product_id uuid REFERENCES products ON DELETE CASCADE,
-            quantity int NOT NULL DEFAULT 1
-        );
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'cart_item') THEN
+            CREATE TYPE cart_item AS (
+                product_id uuid REFERENCES products ON DELETE CASCADE,
+                quantity int NOT NULL DEFAULT 1
+            );
+        END IF;
     `);
 
     await pool.query(`
@@ -51,11 +53,13 @@ export const createTables = async () => {
     `);
 
     await pool.query(`
-        CREATE TYPE order_item AS (
-            name varchar(255) NOT NULL,
-            price money NOT NULL,
-            quantity int NOT NULL
-        );
+        IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'cart_item') THEN
+            CREATE TYPE order_item AS (
+                name varchar(255) NOT NULL,
+                price money NOT NULL,
+                quantity int NOT NULL
+            );
+        END IF;
     `);
 
     await pool.query(`
