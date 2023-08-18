@@ -1,25 +1,9 @@
 import { RequestHandler } from "express";
-import { authenticateRequest, toPgArray } from "../lib/util";
+import { toPgArray } from "../lib/util";
 import { pool } from "../pg";
 
-// Get one by user_id
-export const GET = (async (req, res) => {
-    try {
-        const uid = await authenticateRequest(req.params.idToken);
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
-
-        if (!rowCount) return res.status(404).send();
-
-        res.status(200).json(rows[0]);
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Update one by user_id
-export const PATCH = (async (req, res) => {
+// Combine carts of client and db (for when a user logs in on the client)
+export const COMBINE = (async (req, res) => {
     try {
         const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
 
@@ -31,7 +15,32 @@ export const PATCH = (async (req, res) => {
                 items=${toPgArray([...rows[0].items, ...req.body.items])}
                 WHERE user_id = '${req.params.user_id}'
                 RETURNING items
-            `)
+            `
+        );
+
+        res.status(200).json(updatedCartResult.rows[0]);
+
+    } catch (err: any) {
+        console.error(err);
+        res.status(500).send();
+    }
+}) satisfies RequestHandler;
+
+// Add/remove items (for when a user is browsing and adding/removing items on the client side)
+export const UPDATE = (async (req, res) => {
+    try {
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
+
+        if (!rowCount) return res.status(404).send();
+
+        // Replace the cart in the db with the cart received from the client
+        const updatedCartResult = await pool.query(
+            `UPDATE carts SET
+                items=${toPgArray([...rows[0].items, ...req.body.items])}
+                WHERE user_id = '${req.params.user_id}'
+                RETURNING items
+            `
+        );
 
         res.status(200).json(updatedCartResult.rows[0]);
 
@@ -71,7 +80,8 @@ export const CHECKOUT = (async (req, res) => {
                 '${rows[0].user_id}',
                 ${Date.now()},
                 '${order_items}'
-            )`);
+            )`
+        );
         
         // Clear the user's cart
         await pool.query(
@@ -81,7 +91,8 @@ export const CHECKOUT = (async (req, res) => {
             ) VALUES (
                 gen_random_uuid(),
                 '{}'
-            )`);
+            )`
+        );
 
         res.status(204).send();
 
