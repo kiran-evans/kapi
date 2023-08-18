@@ -17,7 +17,7 @@ export type User = {
 
 // Create new user
 export const POST = (async (req, res) => {
-    try {        
+    try {
         // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.body.idToken);
 

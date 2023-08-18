@@ -5,9 +5,9 @@ import { CHECKOUT, COMBINE, UPDATE } from "../controllers/Cart";
 const router = Router();
 
 // Routes using cart id
-const idRoute = router.route('/cart/:auth_id');
+const idRoute = router.route('/cart/:idToken');
 idRoute.patch(
-    param('user_id').notEmpty().isJWT(),
+    param('idToken').notEmpty().isJWT(),
     body('items').notEmpty().isArray(),
     COMBINE
 );
@@ -18,9 +18,9 @@ idRoute.put(
 )
 
 // Checkout route
-const checkoutRoute = router.route('/checkout/:auth_id');
+const checkoutRoute = router.route('/checkout/:idToken');
 checkoutRoute.post(
-    param('user_id').notEmpty().isJWT(),
+    param('idToken').notEmpty().isJWT(),
     CHECKOUT
 );
 

@@ -1,11 +1,15 @@
 import { RequestHandler } from "express";
+import { fb } from "../firebase";
 import { toPgArray } from "../lib/util";
 import { pool } from "../pg";
 
 // Combine carts of client and db (for when a user logs in on the client)
 export const COMBINE = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
+        // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.params.idToken);
+
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${idToken.uid}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -29,7 +33,10 @@ export const COMBINE = (async (req, res) => {
 // Add/remove items (for when a user is browsing and adding/removing items on the client side)
 export const UPDATE = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
+        // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.params.idToken);
+
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${idToken.uid}'`);
 
         if (!rowCount) return res.status(404).send();
 
@@ -55,7 +62,10 @@ export const CHECKOUT = (async (req, res) => {
     try {
         // Payment has succeeded
         // Find user's cart
-        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
+        // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.params.idToken);
+
+        const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${idToken.uid}'`);
         if (!rowCount) return res.status(404).send();
         
         // Save cart items as an array of order_items (name, price, quantity)
