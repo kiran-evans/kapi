@@ -7,7 +7,7 @@ import { pool } from "../pg";
 export const COMBINE = (async (req, res) => {
     try {
         // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
-        const idToken = await fb.auth().verifyIdToken(req.params.idToken);
+        const idToken = await fb.auth().verifyIdToken(req.params.idToken);        
 
         const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${idToken.uid}'`);
 

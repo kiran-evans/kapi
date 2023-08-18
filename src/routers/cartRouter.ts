@@ -12,7 +12,7 @@ idRoute.patch(
     COMBINE
 );
 idRoute.put(
-    param('user_id').notEmpty().isJWT(),
+    param('idToken').notEmpty().isJWT(),
     body('items').notEmpty().isArray(),
     UPDATE
 )

@@ -21,6 +21,11 @@ export const POST = (async (req, res) => {
         // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.body.idToken);
 
+        // Check if this user already exists
+        const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
+        // If a user already exists, just return a success
+        if (userResult.rowCount > 0) return res.status(204).send();
+
         // Insert new user record and return id
         const { rows } = await pool.query(
             `INSERT INTO users (
@@ -37,7 +42,7 @@ export const POST = (async (req, res) => {
             `INSERT INTO carts (
                 user_id
             ) VALUES (
-                ${rows[0].id}
+                '${rows[0].id}'
             )`
         );
 
