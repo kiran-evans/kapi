@@ -20,8 +20,10 @@ CREATE TABLE IF NOT EXISTS users (
 -- CART
 
 CREATE TYPE cart_item AS (
-    product_id uuid REFERENCES products ON DELETE CASCADE,
-    quantity int NOT NULL DEFAULT 1
+    product_id uuid,
+    quantity int,
+    colour varchar(15),
+    size varchar(15)
 );
 
 CREATE TABLE IF NOT EXISTS carts (
@@ -35,9 +37,9 @@ CREATE TABLE IF NOT EXISTS carts (
 -- An order_item contains some information about a product that existed in the database at the time the order was created
 -- An order_item DOES NOT contain a reference to a product in the the database, as that product may have been changed or deleted, but the user may still want to see what they ordered
 CREATE TYPE order_item AS (
-    name varchar(255) NOT NULL,
-    price money NOT NULL,
-    quantity int NOT NULL
+    name varchar(255),
+    price real,
+    quantity int
 );
 
 -- An order is essentially a receipt which is created when a user checks out their cart

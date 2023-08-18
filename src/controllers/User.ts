@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { fb } from '../firebase';
+import { authenticateRequest } from '../lib/util';
 import { pool } from "../pg";
 
 dotenv.config({
@@ -47,14 +48,6 @@ export const POST = (async (req, res) => {
         res.status(500).send();
     }
 }) satisfies RequestHandler;
-
-// Authenticate that the request has come from the logged in user
-// Returns the idToken's uid if valid. Firebase Admin SDK will throw an error if invalid
-const authenticateRequest = async (reqIdToken: string): Promise<string> => {
-    // Verify encoded id token passed from client (checks user has been signed in on the client side)
-    const idToken = await fb.auth().verifyIdToken(reqIdToken);
-    return idToken.uid;
-}
 
 // Get one by auth_id (will only return user data if the client is logged in with that user)
 export const GET = (async (req, res) => {

@@ -1,9 +1,11 @@
 import { RequestHandler } from "express";
+import { authenticateRequest, toPgArray } from "../lib/util";
 import { pool } from "../pg";
 
 // Get one by user_id
 export const GET = (async (req, res) => {
     try {
+        const uid = await authenticateRequest(req.params.idToken);
         const { rows, rowCount } = await pool.query(`SELECT * FROM carts WHERE user_id = '${req.params.user_id}'`);
 
         if (!rowCount) return res.status(404).send();
@@ -23,23 +25,15 @@ export const PATCH = (async (req, res) => {
 
         if (!rowCount) return res.status(404).send();
 
-        let newBody = { ...rows[0] };
-        
-        for (const key in req.body) {
-            if (newBody[key] !== req.body[key]) {
-                newBody[key] = req.body[key];
-            }
-        }
-
-        await pool.query(
+        // Combine items from the client with the items from the db
+        const updatedCartResult = await pool.query(
             `UPDATE carts SET
-                name='${newBody.name}',
-                description='${newBody.description}',
-                price='${newBody.price}'
+                items=${toPgArray([...rows[0].items, ...req.body.items])}
                 WHERE user_id = '${req.params.user_id}'
+                RETURNING items
             `)
 
-        res.status(204).send();
+        res.status(200).json(updatedCartResult.rows[0]);
 
     } catch (err: any) {
         console.error(err);

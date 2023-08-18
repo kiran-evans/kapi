@@ -42,7 +42,9 @@ export const createTables = async () => {
         await pool.query(`
             CREATE TYPE cart_item AS (
                 product_id uuid,
-                quantity int
+                quantity int,
+                colour varchar(15),
+                size varchar(15)
             );
         `);
     }    
