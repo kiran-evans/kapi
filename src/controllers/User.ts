@@ -23,9 +23,29 @@ export const POST = (async (req, res) => {
 
         // Check if this user already exists
         const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        // If a user already exists, just return a success
-        if (userResult.rowCount > 0) return res.status(204).send();
+        
+        // If a user already exists
+        if (userResult.rowCount > 0) {
+            // Check if there is already a cart associated with this user
+            const cartResult = await pool.query(`SELECT * FROM carts WHERE user_id = '${userResult.rows[0].id}'`);
+            
+            // If there is, we don't need to do anything
+            if (cartResult.rowCount > 0) return res.status(204).send();
+            
+            // Create new empty cart
+            await pool.query(
+                `INSERT INTO carts (
+                    id,
+                    user_id
+                ) VALUES (
+                    gen_random_uuid(),
+                    '${userResult.rows[0].id}'
+                )`
+            );
+            return res.status(201).send();
+        }
 
+        // If user and cart don't already exist
         // Insert new user record and return id
         const { rows } = await pool.query(
             `INSERT INTO users (
@@ -40,8 +60,10 @@ export const POST = (async (req, res) => {
         // Create new empty cart
         await pool.query(
             `INSERT INTO carts (
+                id,
                 user_id
             ) VALUES (
+                gen_random_uuid(),
                 '${rows[0].id}'
             )`
         );
