@@ -1,7 +1,7 @@
 -- PRODUCT
 
 CREATE TABLE IF NOT EXISTS products (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name varchar(255) NOT NULL,
     description varchar(255) NOT NULL,
     price money NOT NULL DEFAULT 0.00,
@@ -13,40 +13,28 @@ CREATE TABLE IF NOT EXISTS products (
 -- USER
 
 CREATE TABLE IF NOT EXISTS users (
-    id uuid PRIMARY KEY,
-    auth_id text NOT NULL UNIQUE
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth_id text NOT NULL UNIQUE,
+    cart_items uuid[] NOT NULL DEFAULT '{}'
 )
 
 -- CART
 
-CREATE TYPE cart_item AS (
-    product_id uuid,
-    quantity int,
-    colour varchar(15),
-    size varchar(15)
-);
-
-CREATE TABLE IF NOT EXISTS carts (
-    id uuid PRIMARY KEY,
-    user_id uuid REFERENCES users ON DELETE CASCADE,
-    items cart_item[] NOT NULL DEFAULT '{}'
+CREATE TABLE IF NOT EXISTS cart_items (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    product_id uuid REFERENCES products ON DELETE CASCADE,
+    quantity int NOT NULL,
+    colour varchar(15) NOT NULL,
+    size varchar(15) NOT NULL
 )
 
 -- ORDER
 
--- An order_item contains some information about a product that existed in the database at the time the order was created
--- An order_item DOES NOT contain a reference to a product in the the database, as that product may have been changed or deleted, but the user may still want to see what they ordered
-CREATE TYPE order_item AS (
-    name varchar(255),
-    price real,
-    quantity int
-);
-
 -- An order is essentially a receipt which is created when a user checks out their cart
 -- If a user account is deleted, the user_id column should be set to NULL. This allows orders to stay in the database even if the user account has been deleted
 CREATE TABLE IF NOT EXISTS orders (
-    id uuid PRIMARY KEY,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES users ON DELETE SET NULL,
     date_placed bigint NOT NULL,
-    items order_item[] NOT NULL
+    items json[] NOT NULL
 )

@@ -28,7 +28,6 @@ export const POST = (async (req, res) => {
         products.forEach(async (product) => {
             await pool.query(
                 `INSERT INTO products (
-                    id,
                     name,
                     description,
                     price,
@@ -36,7 +35,6 @@ export const POST = (async (req, res) => {
                     sizes,
                     colours
                 ) VALUES (
-                    gen_random_uuid(),
                     '${product.name}',
                     '${product.description}',
                     ${Number(product.price.slice(1))},

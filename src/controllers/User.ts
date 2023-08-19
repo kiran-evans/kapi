@@ -8,13 +8,6 @@ dotenv.config({
     path: '../.env'
 });
 
-export type User = {
-    id: number,
-    email: string,
-    hashed_pw: string,
-    salt: string
-}
-
 // Create new user
 export const POST = (async (req, res) => {
     try {
@@ -25,46 +18,14 @@ export const POST = (async (req, res) => {
         const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
         
         // If a user already exists
-        if (userResult.rowCount > 0) {
-            // Check if there is already a cart associated with this user
-            const cartResult = await pool.query(`SELECT * FROM carts WHERE user_id = '${userResult.rows[0].id}'`);
-            
-            // If there is, we don't need to do anything
-            if (cartResult.rowCount > 0) return res.status(204).send();
-            
-            // Create new empty cart
-            await pool.query(
-                `INSERT INTO carts (
-                    id,
-                    user_id
-                ) VALUES (
-                    gen_random_uuid(),
-                    '${userResult.rows[0].id}'
-                )`
-            );
-            return res.status(201).send();
-        }
-
-        // If user and cart don't already exist
+        if (userResult.rowCount > 0) return res.status(201).send();
+        
         // Insert new user record and return id
-        const { rows } = await pool.query(
+        await pool.query(
             `INSERT INTO users (
-                id,
                 auth_id
             ) VALUES (
-                gen_random_uuid(),
                 '${idToken.uid}'
-            ) RETURNING id`
-        );
-        
-        // Create new empty cart
-        await pool.query(
-            `INSERT INTO carts (
-                id,
-                user_id
-            ) VALUES (
-                gen_random_uuid(),
-                '${rows[0].id}'
             )`
         );
 
@@ -86,36 +47,6 @@ export const GET = (async (req, res) => {
         if (!rowCount) throw `Query returned no users with auth_id = '${uid}'`;
         res.status(200).json(rows[0]);
         
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send();
-    }
-}) satisfies RequestHandler;
-
-// Update one by id
-export const PATCH = (async (req, res) => {
-    try {
-        const uid = await authenticateRequest(req.params.idToken);
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${uid}'`);
-
-        if (!rowCount) return res.status(404).send();
-
-        let newBody = { ...rows[0] };
-        
-        for (const key in req.body) {
-            if (newBody[key] !== req.body[key]) {
-                newBody[key] = req.body[key];
-            }
-        }
-
-        await pool.query(
-            `UPDATE users SET
-                email='${newBody.email}'
-                WHERE id = '${req.params.id}'
-            `)
-
-        res.status(204).send();
-
     } catch (err: any) {
         console.error(err);
         res.status(500).send();

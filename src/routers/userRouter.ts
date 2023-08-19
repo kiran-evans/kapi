@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from 'express-validator';
-import { DELETE, GET, PATCH, POST } from "../controllers/User";
+import { DELETE, GET, POST } from "../controllers/User";
 
 const router = Router();
 
@@ -16,11 +16,6 @@ const authIdRoute = router.route('/user/:idToken');
 authIdRoute.get(
     param('idToken').notEmpty().isJWT(),
     GET
-);
-authIdRoute.patch(
-    param('idToken').notEmpty().isJWT(),
-    body('auth_id').notEmpty().isAlphanumeric(),
-    PATCH
 );
 authIdRoute.delete(
     param('idToken').notEmpty().isJWT(),
