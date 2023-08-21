@@ -51,7 +51,7 @@ export const UPDATE = (async (req, res) => {
         });        
 
         const updatedCartResult = await pool.query(
-            `UPDATE user SET
+            `UPDATE users SET
                 cart_items=${toPgArray(newCartItems)}
                 WHERE user_id = '${userResult.rows[0].id}'
                 RETURNING items
