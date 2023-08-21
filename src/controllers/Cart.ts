@@ -24,10 +24,11 @@ export const COMBINE = (async (req, res) => {
         const updatedCartResult = await pool.query(`
             UPDATE users SET
                 cart_items=${toPgArray(newCartItemIds)}
-                WHERE user_id='${userResult.rows[0].id}'
+                WHERE id='${userResult.rows[0].id}'
+                RETURNING cart_items
         `)
 
-        res.status(200).json(updatedCartResult.rows[0]);
+        res.status(200).json(updatedCartResult.rows[0].cart_items);
 
     } catch (err: any) {
         console.error(err);
@@ -46,19 +47,21 @@ export const UPDATE = (async (req, res) => {
 
         // Replace the cart in the db with the cart received from the client
         const newCartItems = Array<string>();
+        console.log(req.body);
+        
         req.body.items.forEach(async (clientCartItem: CartItem) => {
             newCartItems.push(await addNewCartItemToDb(clientCartItem));
-        });        
+        });
 
         const updatedCartResult = await pool.query(
             `UPDATE users SET
                 cart_items=${toPgArray(newCartItems)}
-                WHERE user_id = '${userResult.rows[0].id}'
-                RETURNING items
+                WHERE id = '${userResult.rows[0].id}'
+                RETURNING cart_items
             `
         );
 
-        res.status(200).json(updatedCartResult.rows[0]);
+        res.status(200).json(updatedCartResult.rows[0].cart_items);
 
     } catch (err: any) {
         console.error(err);
