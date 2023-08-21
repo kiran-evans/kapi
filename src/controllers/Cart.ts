@@ -21,14 +21,13 @@ export const COMBINE = (async (req, res) => {
         });
 
         // Replace the user's cart in the db with the newly consolidated one
-        const updatedCartResult = await pool.query(`
+        await pool.query(`
             UPDATE users SET
                 cart_items=${toPgArray(newCartItemIds)}
                 WHERE id='${userResult.rows[0].id}'
-                RETURNING cart_items
         `)
 
-        res.status(200).json(updatedCartResult.rows[0].cart_items);
+        res.status(200).json(newCart);
 
     } catch (err: any) {
         console.error(err);
@@ -41,9 +40,6 @@ export const UPDATE = (async (req, res) => {
     try {
         // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.params.idToken);
-        // Get the user data from the db
-        const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        if (!userResult.rowCount) throw `Query returned no users with auth_id = '${idToken.uid}'`;
 
         // Replace the cart in the db with the cart received from the client
         const newCartItems = Array<string>();
@@ -53,15 +49,15 @@ export const UPDATE = (async (req, res) => {
             newCartItems.push(await addNewCartItemToDb(clientCartItem));
         });
 
-        const updatedCartResult = await pool.query(
+        await pool.query(
             `UPDATE users SET
                 cart_items=${toPgArray(newCartItems)}
-                WHERE id = '${userResult.rows[0].id}'
-                RETURNING cart_items
+                WHERE auth_id = '${idToken.uid}'
             `
         );
 
-        res.status(200).json(updatedCartResult.rows[0].cart_items);
+        // Get the items data from the db
+        res.status(204).send();
 
     } catch (err: any) {
         console.error(err);
