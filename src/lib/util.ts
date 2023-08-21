@@ -5,11 +5,14 @@ import { CartItem } from "./types";
 export const toPgArray = (jsArray: Array<string | number>): string => {
     let pgArray = "'{";
 
-    for (let i = 0; i < jsArray.length; i++) {
-        pgArray += `"${jsArray[i]}"`;        
+    // Only add items to the array if there are any in the first place
+    if (jsArray.length > 0) {
+        for (let i = 0; i < jsArray.length; i++) {
+            pgArray += `"${jsArray[i]}"`;        
 
-        // If not the last element
-        if (i < jsArray.length - 1) pgArray += ",";
+            // If not the last element
+            if (i < jsArray.length - 1) pgArray += ",";
+        }
     }
 
     pgArray += "}'";
@@ -50,10 +53,10 @@ export const consolidateCarts = async (pgCartItemIds: string, reqCartItems: Arra
     
     // Get the data for each of the db cartItems
     const dbCartItemIds = toJsArray(pgCartItemIds);
-    dbCartItemIds.forEach(async (dbCartItemId) => {
-        const { rows } = await pool.query(`SELECT * FROM cart_items WHERE id='${dbCartItemId}'`);
+    for (const cartItemId of dbCartItemIds) {
+        const { rows } = await pool.query(`SELECT * FROM cart_items WHERE id='${cartItemId}'`);
         dbCartItems.push(rows[0]);
-    });
+    }
 
     // Consolidate duplicate items (ones that have the same product_id and colour and size options)
     for (let i = 0; i < dbCartItems.length; i++) {
@@ -76,9 +79,9 @@ export const consolidateCarts = async (pgCartItemIds: string, reqCartItems: Arra
     }
 
     // Create new cart_items in the db for the reamining clientCartItems
-    clientCartItems.forEach(async (clientCartItem) => {
+    for (const clientCartItem of clientCartItems) {
         clientCartItem.id = await addNewCartItemToDb(clientCartItem);
-    });
+    }
 
     // Add in the remaining items
     return newCartItems.concat(dbCartItems).concat(clientCartItems);
@@ -97,6 +100,6 @@ export const addNewCartItemToDb = async (cartItem: CartItem): Promise<string> =>
             '${cartItem.colour}',
             '${cartItem.size}'
         ) RETURNING id
-    `);
+    `);    
     return rows[0].id;
 }

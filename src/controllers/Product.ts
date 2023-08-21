@@ -25,7 +25,7 @@ export const POST = (async (req, res) => {
             colours: string[]
         }> = req.body;
 
-        products.forEach(async (product) => {
+        for (const product of products) {
             await pool.query(
                 `INSERT INTO products (
                     name,
@@ -42,7 +42,7 @@ export const POST = (async (req, res) => {
                     ${toPgArray(product.sizes)},
                     ${toPgArray(product.colours)}
                 )`);
-        })
+        }
 
         res.status(201).send();
 

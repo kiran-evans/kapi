@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import { fb } from "../firebase";
-import { CartItem } from "../lib/types";
 import { addNewCartItemToDb, consolidateCarts, toPgArray } from "../lib/util";
 import { pool } from "../pg";
 
@@ -43,11 +42,10 @@ export const UPDATE = (async (req, res) => {
 
         // Replace the cart in the db with the cart received from the client
         const newCartItems = Array<string>();
-        console.log(req.body);
         
-        req.body.items.forEach(async (clientCartItem: CartItem) => {
+        for (const clientCartItem of req.body.items) {
             newCartItems.push(await addNewCartItemToDb(clientCartItem));
-        });
+        }        
 
         await pool.query(
             `UPDATE users SET
