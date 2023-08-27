@@ -1,8 +1,10 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../pg';
-import { User } from './User';
 
-export class Order extends Model { }
+export class Order extends Model {
+    declare id: string;
+    declare items: Array<any>
+}
 
 Order.init({
     id: {
@@ -11,13 +13,9 @@ Order.init({
         defaultValue: DataTypes.UUIDV4
     },
     items: {
-        type: DataTypes.JSON,
+        type: DataTypes.ARRAY(DataTypes.JSON),
         allowNull: false
     }
 }, {
     sequelize
-});
-
-Order.belongsTo(User, {
-    onDelete: 'SET NULL'
 });

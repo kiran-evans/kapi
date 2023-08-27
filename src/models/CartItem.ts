@@ -1,15 +1,26 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../pg';
 import { Product } from './Product';
-import { User } from './User';
 
-export class CartItem extends Model { }
+export class CartItem extends Model {
+    declare id: string;
+    declare product_id: string;
+    declare quantity: number;
+    declare colour: string;
+    declare size: string;
+}
 
 CartItem.init({
     id: {
         type: DataTypes.UUID,
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4
+    },
+    product_id: {  
+        type: DataTypes.UUID,
+        references: {
+            model: Product
+        }
     },
     quantity: {
         type: DataTypes.INTEGER,
@@ -29,9 +40,4 @@ CartItem.init({
 }, {
     sequelize,
     tableName: 'cart_items'
-});
-
-CartItem.hasOne(Product);
-CartItem.belongsTo(User, {
-    onDelete: 'CASCADE'
 });

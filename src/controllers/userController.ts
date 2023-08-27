@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { fb } from '../firebase';
-import { User } from '../lib/model';
 import { authenticateRequest } from '../lib/util';
+import { User } from '../models/User';
 
 dotenv.config({
     path: '../.env'

@@ -1,9 +1,12 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../pg';
-import { CartItem } from './CartItem';
-import { Order } from './Order';
 
-export class User extends Model { }
+export class User extends Model {
+    declare id: string;
+    declare auth_id: string;
+    declare cart_item_ids: Array<string>;
+    declare order_ids: Array<string>
+}
 
 User.init({
     id: {
@@ -15,10 +18,17 @@ User.init({
         type: DataTypes.STRING,
         allowNull: false,
         unique: true
+    },
+    cart_item_ids: {
+        type: DataTypes.ARRAY(DataTypes.UUID),
+        allowNull: false,
+        defaultValue: []
+    },
+    order_ids: {
+        type: DataTypes.ARRAY(DataTypes.UUID),
+        allowNull: false,
+        defaultValue: []
     }
 }, {
     sequelize
 });
-
-User.hasMany(Order);
-User.hasMany(CartItem);

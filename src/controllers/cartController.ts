@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { fb } from "../firebase";
-import { CartItem, User } from "../lib/model";
-import { addNewCartItemToDb, consolidateCarts, toPgArray } from "../lib/util";
+import { addNewCartItemToDb, consolidateCarts } from "../lib/util";
+import { User } from "../models/User";
 
 // Combine carts of client and db (for when a user logs in on the client)
 export const COMBINE = (async (req, res) => {
@@ -12,13 +12,12 @@ export const COMBINE = (async (req, res) => {
         const user = await User.findOne({
             where: {
                 auth_id: idToken.uid
-            },
-            include: CartItem
+            }
         });
 
         if (!user) return res.status(404).send();
 
-        const newCart = await consolidateCarts(user.getCartItems(), req.body.items);
+        const newCart = await consolidateCarts(user.cart_item_ids, req.body.items);
         
         const newCartItemIds = Array<string>();
         newCart.forEach(cartItem => {
@@ -26,11 +25,13 @@ export const COMBINE = (async (req, res) => {
         });
 
         // Replace the user's cart in the db with the newly consolidated one
-        await pool.query(`
-            UPDATE users SET
-                cart_items=${toPgArray(newCartItemIds)}
-                WHERE id='${userResult.rows[0].id}'
-        `)
+        await User.update({
+            cart_item_ids: newCartItemIds
+        }, {
+            where: {
+                id: user.id
+            }
+        });
 
         res.status(200).json(newCart);
 

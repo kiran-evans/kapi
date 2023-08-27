@@ -1,37 +1,5 @@
 import { fb } from "../firebase";
-import { pool } from "../pg";
-import { CartItem } from "./model";
-
-export const toPgArray = (jsArray: Array<string | number>): string => {
-    let pgArray = "'{";
-
-    // Only add items to the array if there are any in the first place
-    if (jsArray.length > 0) {
-        for (let i = 0; i < jsArray.length; i++) {
-            pgArray += `"${jsArray[i]}"`;        
-
-            // If not the last element
-            if (i < jsArray.length - 1) pgArray += ",";
-        }
-    }
-
-    pgArray += "}'";
-    
-    return pgArray;
-}
-
-export const toJsArray = (pgArray: string): Array<string | number> => {
-    // Remove the opening and closing curly brackets
-    let noBrackets = pgArray.slice(1, pgArray.length - 1);
-
-    // If there is nothing remaining in the string, return an empty array
-    if (noBrackets.length === 0) return [];
-
-    // Split the remaining string by the delimiter ,
-    const jsArray = noBrackets.split(",");
-
-    return jsArray;
-}
+import { CartItem } from "../models/CartItem";
 
 // Authenticate that the request has come from the logged in user
 // Returns the idToken's uid if valid. Firebase Admin SDK will throw an error if invalid
@@ -41,7 +9,7 @@ export const authenticateRequest = async (reqIdToken: string): Promise<string> =
     return idToken.uid;
 }
 
-export const consolidateCarts = async (pgCartItemIds: string, reqCartItems: Array<CartItem>): Promise<Array<CartItem>> => {
+export const consolidateCarts = async (pgCartItemIds: Array<string>, reqCartItems: Array<CartItem>): Promise<Array<CartItem>> => {
     /*
         Check each item in the cart from the db against the cart from the client.
         If two items have the exact same product_id, colour and size, then consolidate them into one item with the quantity
@@ -52,10 +20,9 @@ export const consolidateCarts = async (pgCartItemIds: string, reqCartItems: Arra
     const clientCartItems = [...reqCartItems];
     
     // Get the data for each of the db cartItems
-    const dbCartItemIds = toJsArray(pgCartItemIds);
-    for (const cartItemId of dbCartItemIds) {
-        const { rows } = await pool.query(`SELECT * FROM cart_items WHERE id='${cartItemId}'`);
-        dbCartItems.push(rows[0]);
+    for (const cartItemId of pgCartItemIds) {
+        const cartItem = await CartItem.findByPk(cartItemId);
+        dbCartItems.push(cartItem);
     }
 
     // Consolidate duplicate items (ones that have the same product_id and colour and size options)
@@ -87,19 +54,12 @@ export const consolidateCarts = async (pgCartItemIds: string, reqCartItems: Arra
     return newCartItems.concat(dbCartItems).concat(clientCartItems);
 }
 
-export const addNewCartItemToDb = async (cartItem: CartItem): Promise<string> => {    
-    const { rows } = await pool.query(`
-        INSERT INTO cart_items(
-            product_id,
-            quantity,
-            colour,
-            size
-        ) VALUES (
-            '${cartItem.product_id}',
-            1,
-            '${cartItem.colour}',
-            '${cartItem.size}'
-        ) RETURNING id
-    `);    
-    return rows[0].id;
+export const addNewCartItemToDb = async (cartItem: CartItem): Promise<string> => {
+    const newCartItem = await CartItem.create({
+        product_id: cartItem.product_id,
+        quantity: 1,
+        colour: cartItem.colour,
+        size: cartItem.size
+    });
+    return newCartItem.id;
 }

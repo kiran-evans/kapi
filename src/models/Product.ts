@@ -1,7 +1,16 @@
 import { DataTypes, Model } from 'sequelize';
 import { sequelize } from '../pg';
 
-export class Product extends Model { }
+export class Product extends Model {
+    declare id: string;
+    declare name: string;
+    declare description: string;
+    declare price: number;
+    declare img_url: string;
+    declare categories: Array<String>;
+    declare sizes: Array<string>;
+    declare colours: Array<string>;
+}
 
 Product.init({
     id: {
