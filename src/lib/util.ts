@@ -1,6 +1,6 @@
 import { fb } from "../firebase";
 import { pool } from "../pg";
-import { CartItem } from "./types";
+import { CartItem } from "./model";
 
 export const toPgArray = (jsArray: Array<string | number>): string => {
     let pgArray = "'{";

@@ -32,10 +32,11 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
-// Create tables
-import { createTables } from './pg';
+// Connect to db
+import { db } from './pg';
 (async () => {
-    await createTables();
+    await db.authenticate();
+    console.log(`[server] connected to ${db.getDatabaseName()}`);    
 })();
 
 // Server start
