@@ -36,7 +36,10 @@ app.use(orderRouter);
 import { db } from './pg';
 (async () => {
     await db.authenticate();
-    console.log(`[server] connected to ${db.getDatabaseName()}`);    
+    console.log(`[server] connected to ${db.getDatabaseName()}`);
+    
+    await db.sync();
+    console.log(`[server] all models in ${db.getDatabaseName()} synchronised successfully`);    
 })();
 
 // Server start
