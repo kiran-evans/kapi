@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { fb } from "../firebase";
+import { CartItem, User } from "../lib/model";
 import { addNewCartItemToDb, consolidateCarts, toPgArray } from "../lib/util";
-import { pool } from "../pg";
 
 // Combine carts of client and db (for when a user logs in on the client)
 export const COMBINE = (async (req, res) => {
@@ -9,10 +9,16 @@ export const COMBINE = (async (req, res) => {
         // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.params.idToken);
         // Get the user data from the db
-        const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        if (!userResult.rowCount) throw `Query returned no users with auth_id = '${idToken.uid}'`;
+        const user = await User.findOne({
+            where: {
+                auth_id: idToken.uid
+            },
+            include: CartItem
+        });
 
-        const newCart = await consolidateCarts(userResult.rows[0].cart_items, req.body.items);
+        if (!user) return res.status(404).send();
+
+        const newCart = await consolidateCarts(user.getCartItems(), req.body.items);
         
         const newCartItemIds = Array<string>();
         newCart.forEach(cartItem => {

@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from "express-validator";
-import { CHECKOUT, COMBINE, UPDATE } from "../controllers/Cart";
+import { CHECKOUT, COMBINE, UPDATE } from "../controllers/cartController";
 
 const router = Router();
 

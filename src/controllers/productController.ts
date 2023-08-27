@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
-import { Product } from "../lib/model";
+import { Product } from '../models/Product';
 dotenv.config({
     path: '../.env'
 });

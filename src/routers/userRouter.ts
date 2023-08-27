@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from 'express-validator';
-import { DELETE, GET, POST } from "../controllers/User";
+import { DELETE, GET, POST } from "../controllers/userController";
 
 const router = Router();
 
