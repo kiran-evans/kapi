@@ -1,17 +1,9 @@
-import { RequestHandler } from "express";
-import { pool } from "../pg";
-
 import dotenv from 'dotenv';
-import { toPgArray } from "../lib/util";
+import { RequestHandler } from "express";
+import { Product } from "../lib/model";
 dotenv.config({
     path: '../.env'
 });
-
-const pgArrayToJsArray = (pgArray: string): Array<any> => {
-    const jsArray: any[] = [];
-
-    return jsArray;
-}
 
 // Create new product
 export const POST = (async (req, res) => {
@@ -19,29 +11,22 @@ export const POST = (async (req, res) => {
         const products: Array<{
             name: string,
             description: string,
-            price: string,
+            price: number,
             categories: string[],
             sizes: string[],
             colours: string[]
         }> = req.body;
 
         for (const product of products) {
-            await pool.query(
-                `INSERT INTO products (
-                    name,
-                    description,
-                    price,
-                    categories,
-                    sizes,
-                    colours
-                ) VALUES (
-                    '${product.name}',
-                    '${product.description}',
-                    ${Number(product.price.slice(1))},
-                    ${toPgArray(product.categories)},
-                    ${toPgArray(product.sizes)},
-                    ${toPgArray(product.colours)}
-                )`);
+            await Product.create({
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                img_url: `${process.env.DOMAIN}/public/${product.name}.jpeg`,
+                categories: product.categories,
+                sizes: product.sizes,
+                colours: product.colours
+            });
         }
 
         res.status(201).send();
@@ -55,14 +40,7 @@ export const POST = (async (req, res) => {
 // Get all
 export const GET_ALL = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products`);
-
-        const products = [...rows];
-        rows.forEach(product => {
-            product.imageUrl = `${process.env.DOMAIN}/public/${product.name}.jpeg`
-        });
-
-        if (!rowCount) return res.status(404).send();
+        const products = await Product.findAll();
 
         res.status(200).json(products);
 
@@ -75,14 +53,11 @@ export const GET_ALL = (async (req, res) => {
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM products WHERE id = '${req.params.id}'`);
+        const product = await Product.findByPk(req.body.id);
 
-        if (!rowCount) return res.status(404).send();
+        if (!product) return res.status(404).send();
 
-        const productBody = { ...rows[0] };
-        productBody.imageUrl = `${process.env.DOMAIN}/public/${productBody.name}.jpeg`;
-
-        res.status(200).json(productBody);
+        res.status(200).json(product.toJSON());
 
     } catch (err: any) {
         console.error(err);

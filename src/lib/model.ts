@@ -19,6 +19,10 @@ export const Product = db.define('Product', {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
+    img_url: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
     categories: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: false
