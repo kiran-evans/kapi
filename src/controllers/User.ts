@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { fb } from '../firebase';
+import { User } from '../lib/model';
 import { authenticateRequest } from '../lib/util';
-import { pool } from "../pg";
 
 dotenv.config({
     path: '../.env'
@@ -14,20 +14,15 @@ export const POST = (async (req, res) => {
         // Verify encoded id token passed from client (checks user has been created nad signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.body.idToken);
 
-        // Check if this user already exists
-        const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        
-        // If a user already exists
-        if (userResult.rowCount > 0) return res.status(201).send();
-        
-        // Insert new user record and return id
-        await pool.query(
-            `INSERT INTO users (
-                auth_id
-            ) VALUES (
-                '${idToken.uid}'
-            )`
-        );
+        // Create the user if it doesn't exist
+        await User.findOrCreate({
+            where: {
+                auth_id: idToken.uid
+            },
+            defaults: {
+                auth_id: idToken.uid
+            }
+        });
 
         res.status(201).send();
 
@@ -43,9 +38,14 @@ export const GET = (async (req, res) => {
         const uid = await authenticateRequest(req.params.idToken);
 
         // Get the user data from the db
-        const { rows, rowCount } = await pool.query(`SELECT * FROM users WHERE auth_id = '${uid}'`);
-        if (!rowCount) throw `Query returned no users with auth_id = '${uid}'`;
-        res.status(200).json(rows[0]);
+        const user = await User.findOne({
+            where: {
+                auth_id: uid
+            }
+        });
+        
+        if (!user) throw `Query returned no users with auth_id = '${uid}'`;
+        res.status(200).json(user.toJSON());
         
     } catch (err: any) {
         console.error(err);
@@ -57,9 +57,12 @@ export const GET = (async (req, res) => {
 export const DELETE = (async (req, res) => {
     try {
         const uid = await authenticateRequest(req.params.idToken);
-        const { rowCount } = await pool.query(`DELETE FROM users WHERE auth_id = '${uid}'`);
-
-        if (!rowCount) return res.status(404).send();
+        await User.destroy({
+            where: {
+                auth_id: uid
+            },
+            truncate: true
+        });
 
         res.status(204).send();
 
