@@ -1,10 +1,11 @@
 import { RequestHandler } from "express";
 import { fb } from "../firebase";
-import { consolidateCarts } from "../lib/util";
+import { addToCart } from "../lib/util";
+import { CartItem } from "../models/CartItem";
 import { User } from "../models/User";
 
 // Combine carts of client and db (for when a user logs in on the client)
-export const COMBINE = (async (req, res) => {
+export const REPLACE_CART = (async (req, res) => {
     try {
         // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.params.idToken);
@@ -16,24 +17,23 @@ export const COMBINE = (async (req, res) => {
         });
 
         if (!user) return res.status(404).send();
-
-        const newCart = await consolidateCarts(user.cart_item_ids, req.body.items);
         
         const newCartItemIds = Array<string>();
-        newCart.forEach(cartItem => {
+        req.body.items.forEach((cartItem: CartItem) => {
             newCartItemIds.push(cartItem.id);
         });
 
         // Replace the user's cart in the db with the newly consolidated one
-        await User.update({
+        const [affectedCount, affectedRows] = await User.update({
             cart_item_ids: newCartItemIds
         }, {
             where: {
                 id: user.id
-            }
+            },
+            returning: true
         });
 
-        res.status(200).json(newCart);
+        res.status(200).json(affectedRows[0].toJSON());
 
     } catch (err: any) {
         console.error(err);
@@ -42,7 +42,7 @@ export const COMBINE = (async (req, res) => {
 }) satisfies RequestHandler;
 
 // Add/remove items (for when a user is browsing and adding/removing items on the client side)
-export const UPDATE = (async (req, res) => {
+export const ADD_TO_CART = (async (req, res) => {
     try {
         // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
         const idToken = await fb.auth().verifyIdToken(req.params.idToken);
@@ -55,14 +55,9 @@ export const UPDATE = (async (req, res) => {
 
         if (!user) return res.status(404).json(`No user found with auth_id=${idToken.id}`);
 
-        // Combine the existing cart in the db with the items in the request, handling duplicates where necessary
-        const newCartItems = await consolidateCarts(user.cart_item_ids, req.body.items);
+        // Combine the existing cart in the db with the item in the request, handling duplicates where necessary
+        const newCartItemIds = await addToCart(user.cart_item_ids, req.body.item);
         
-        // Update the user's cart in the db
-        const newCartItemIds = Array<string>();
-        newCartItems.forEach(newCartItem => {
-            newCartItemIds.push(newCartItem.id)
-        });
         await User.update({
             cart_item_ids: newCartItemIds
         }, {
