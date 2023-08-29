@@ -4,7 +4,7 @@ import { CHECKOUT, COMBINE, UPDATE } from "../controllers/cartController";
 
 const router = Router();
 
-// Routes using cart id
+// Routes using user idToken
 const idRoute = router.route('/cart/:idToken');
 idRoute.patch(
     param('idToken').notEmpty().isJWT(),
