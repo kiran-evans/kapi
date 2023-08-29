@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { DELETE, GET, PATCH } from "../controllers/Order";
+import { DELETE, GET, PATCH } from "../controllers/orderController";
 
 const router = Router();
 

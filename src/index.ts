@@ -5,9 +5,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 import dotenv from 'dotenv';
-dotenv.config({
-    path: '../.env'
-});
+dotenv.config();
 
 import cors, { CorsOptions } from 'cors';
 const corsOptions: CorsOptions = {
@@ -32,13 +30,17 @@ app.use(cartRouter);
 import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
-// Create tables
-import { createTables } from './pg';
+// Connect to db
+import { sequelize } from './pg';
 (async () => {
-    await createTables();
+    await sequelize.authenticate();
+    console.log(`[server] connected to '${sequelize.getDatabaseName()}'`);
+    
+    await sequelize.sync();
+    console.log(`[server] all models in '${sequelize.getDatabaseName()}' synchronised successfully`);    
 })();
 
 // Server start
 app.listen(process.env.PORT, () => {
-  console.log(`[server] server started on ${process.env.DOMAIN}`);
+  console.log(`[server] server started on '${process.env.DOMAIN}'`);
 });

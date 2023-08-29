@@ -4,10 +4,10 @@
   "description": "An e-commerce REST API using Express, Node.js, and Postgres",
   "main": "index.ts",
   "scripts": {
-    "build": "esbuild index.ts --bundle --minify --platform=node --target=node18 --outdir=../dist",
-    "start": "node ../dist/index.js",
-    "buildDev": "esbuild index.ts --bundle --platform=node --target=node18 --outdir=../dist.local",
-    "startDev": "nodemon ../dist.local/index.js"
+    "build": "tsc --outDir ./dist",
+    "start": "node ./dist/index.js",
+    "buildDev": "tsc --outDir ./dist.local",
+    "startDev": "nodemon ./dist.local/index.js"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +20,9 @@
     "express-validator": "^7.0.1",
     "firebase-admin": "^11.10.1",
     "helmet": "^7.0.0",
-    "pg": "^8.11.2"
+    "pg": "^8.11.2",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.32.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -28,7 +30,6 @@
     "@types/express": "^4.17.17",
     "@types/pg": "^8.10.2",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "esbuild": "^0.18.17",
     "eslint": "^8.46.0",
     "eslint-config-standard-with-typescript": "^37.0.0",
     "eslint-plugin-import": "^2.28.0",
