@@ -1,12 +1,7 @@
-import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { fb } from '../firebase';
 import { authenticateRequest } from '../lib/util';
 import { User } from '../models/User';
-
-dotenv.config({
-    path: '../.env'
-});
 
 // Create new user
 export const POST = (async (req, res) => {

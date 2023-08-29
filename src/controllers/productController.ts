@@ -1,9 +1,5 @@
-import dotenv from 'dotenv';
 import { RequestHandler } from "express";
 import { Product } from '../models/Product';
-dotenv.config({
-    path: '../.env'
-});
 
 // Create new product
 export const POST = (async (req, res) => {

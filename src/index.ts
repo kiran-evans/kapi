@@ -5,9 +5,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 import dotenv from 'dotenv';
-dotenv.config({
-    path: '../.env'
-});
+dotenv.config();
 
 import cors, { CorsOptions } from 'cors';
 const corsOptions: CorsOptions = {

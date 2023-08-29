@@ -1,10 +1,5 @@
 import { Sequelize } from 'sequelize';
 
-import dotenv from 'dotenv';
-dotenv.config({
-    path: '../.env'
-});
-
 // Configure pg
 // export const pool = new Pool({
 //     user: 'postgres',
