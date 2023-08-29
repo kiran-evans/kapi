@@ -52,14 +52,15 @@ export const UPDATE = (async (req, res) => {
         
         for (const clientCartItem of req.body.items) {
             newCartItems.push(await addNewCartItemToDb(clientCartItem));
-        }        
-
-        await pool.query(
-            `UPDATE users SET
-                cart_items=${toPgArray(newCartItems)}
-                WHERE auth_id = '${idToken.uid}'
-            `
-        );
+        }
+        
+        await User.update({
+            cart_items: newCartItems
+        }, {
+            where: {
+                auth_id: idToken.uid
+            }
+        });
 
         // Get the items data from the db
         res.status(204).send();

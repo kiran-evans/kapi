@@ -1,14 +1,14 @@
 import { RequestHandler } from "express";
-import { pool } from "../pg";
+import { Order } from "../models/Order";
 
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = '${req.params.id}'`);
+        const order = await Order.findByPk(req.params.id);
 
-        if (!rowCount) return res.status(404).send();
+        if (!order) return res.status(404).send();
 
-        res.status(200).json(rows[0]);
+        res.status(200).json(order.toJSON());
 
     } catch (err: any) {
         console.error(err);
@@ -19,24 +19,15 @@ export const GET = (async (req, res) => {
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {
-        const { rows, rowCount } = await pool.query(`SELECT * FROM orders WHERE id = '${req.params.id}'`);
+        const order = await Order.findByPk(req.params.id);
 
-        if (!rowCount) return res.status(404).send();
+        if (!order) return res.status(404).send();
 
-        let newBody = { ...rows[0] };
-        
-        for (const key in req.body) {
-            if (newBody[key] !== req.body[key]) {
-                newBody[key] = req.body[key];
+        await Order.update(req.body, {
+            where: {
+                id: order.id
             }
-        }
-
-        await pool.query(
-            `UPDATE orders SET
-                user_id='${newBody.user_id}',
-                items='${newBody.items}',
-                WHERE id = '${req.params.id}'
-            `)
+        });
 
         res.status(204).send();
 
@@ -49,9 +40,11 @@ export const PATCH = (async (req, res) => {
 // Delete one by id
 export const DELETE = (async (req, res) => {
     try {
-        const { rowCount } = await pool.query(`DELETE FROM orders WHERE id = '${req.params.id}'`);
-
-        if (!rowCount) return res.status(404).send();
+        await Order.destroy({
+            where: {
+                id: req.params.id
+            }
+        });
 
         res.status(204).send();
 
