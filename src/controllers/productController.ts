@@ -49,7 +49,7 @@ export const GET_ALL = (async (req, res) => {
 // Get one by id
 export const GET = (async (req, res) => {
     try {
-        const product = await Product.findByPk(req.body.id);
+        const product = await Product.findByPk(req.params.id);
 
         if (!product) return res.status(404).send();
 

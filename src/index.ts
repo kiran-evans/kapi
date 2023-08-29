@@ -34,13 +34,13 @@ app.use(orderRouter);
 import { sequelize } from './pg';
 (async () => {
     await sequelize.authenticate();
-    console.log(`[server] connected to ${sequelize.getDatabaseName()}`);
+    console.log(`[server] connected to '${sequelize.getDatabaseName()}'`);
     
     await sequelize.sync();
-    console.log(`[server] all models in ${sequelize.getDatabaseName()} synchronised successfully`);    
+    console.log(`[server] all models in '${sequelize.getDatabaseName()}' synchronised successfully`);    
 })();
 
 // Server start
 app.listen(process.env.PORT, () => {
-  console.log(`[server] server started on ${process.env.DOMAIN}`);
+  console.log(`[server] server started on '${process.env.DOMAIN}'`);
 });
