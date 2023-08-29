@@ -64,7 +64,7 @@ export const UPDATE = (async (req, res) => {
             newCartItemIds.push(newCartItem.id)
         });
         await User.update({
-            cart_items: newCartItemIds
+            cart_item_ids: newCartItemIds
         }, {
             where: {
                 auth_id: idToken.uid

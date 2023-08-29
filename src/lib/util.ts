@@ -32,17 +32,23 @@ export const consolidateCarts = async (pgCartItemIds: Array<string>, reqCartItem
     }
 
     // Consolidate duplicate items (ones that have the same product_id and colour and size options)
-    for (let i = 0; i < existingCartItemsInDb.length; i++) {
-        for (let j = 0; i < remainingCartItems.length; j++) {
+    for (let i = 0; i < reqCartItems.length; i++) {
+        console.log("looking at item from reqCartItems index", i);
+        
+        for (let j = 0; j < existingCartItemsInDb.length; j++) {
+            console.log("looking at item from existingCartItemsInDb index", j);
+            
             // Check if they are a match, in which case consolidate them
             if (
-                (existingCartItemsInDb[i].product_id === remainingCartItems[j].product_id)
-                && (existingCartItemsInDb[i].colour === remainingCartItems[j].colour)
-                && (existingCartItemsInDb[i].size === remainingCartItems[j].size)
+                (reqCartItems[i].product_id === existingCartItemsInDb[j].product_id)
+                && (reqCartItems[i].colour === existingCartItemsInDb[j].colour)
+                && (reqCartItems[i].size === existingCartItemsInDb[j].size)
             ) {
+                console.log("match");
+                
                 // Increase the quantity of the item in the database
                 const [affectedCount, affectedRows] = await CartItem.update({
-                    quantity: existingCartItemsInDb[i].quantity + remainingCartItems[j].quantity
+                    quantity: existingCartItemsInDb[i].quantity + reqCartItems[j].quantity
                 }, {
                     where: {
                         id: existingCartItemsInDb[i].id
@@ -53,7 +59,6 @@ export const consolidateCarts = async (pgCartItemIds: Array<string>, reqCartItem
                 remainingCartItems.splice(i, 1);
                 // Add this item's updated body to the final output
                 consolidatedCartItems.push(affectedRows[0]);
-                continue;
             }
         }
     }
