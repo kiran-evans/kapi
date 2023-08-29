@@ -47,5 +47,6 @@ Product.init({
         allowNull: false
     }
 }, {
-    sequelize
+    sequelize,
+    tableName: 'products'
 });

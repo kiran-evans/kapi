@@ -17,5 +17,6 @@ Order.init({
         allowNull: false
     }
 }, {
-    sequelize
+    sequelize,
+    tableName: 'orders'
 });
