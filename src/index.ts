@@ -33,13 +33,13 @@ import orderRouter from './routers/orderRouter';
 app.use(orderRouter);
 
 // Connect to db
-import { db } from './pg';
+import { sequelize } from './pg';
 (async () => {
-    await db.authenticate();
-    console.log(`[server] connected to ${db.getDatabaseName()}`);
+    await sequelize.authenticate();
+    console.log(`[server] connected to ${sequelize.getDatabaseName()}`);
     
-    await db.sync();
-    console.log(`[server] all models in ${db.getDatabaseName()} synchronised successfully`);    
+    await sequelize.sync();
+    console.log(`[server] all models in ${sequelize.getDatabaseName()} synchronised successfully`);    
 })();
 
 // Server start
