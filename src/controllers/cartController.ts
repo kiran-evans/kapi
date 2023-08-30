@@ -104,52 +104,31 @@ export const GET = (async (req, res) => {
 // Checkout
 export const CHECKOUT = (async (req, res) => {
     try {
-        // // Payment has succeeded
-        // // Find user's cart
-        // // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
-        // const idToken = await fb.auth().verifyIdToken(req.params.idToken);
-        // // Get the user data from the db
-        // const userResult = await pool.query(`SELECT * FROM users WHERE auth_id = '${idToken.uid}'`);
-        // if (!userResult.rowCount) throw `Query returned no users with auth_id = '${idToken.uid}'`;
+        const stripe = require('stripe')('sk_test_26PHem9AhJZvU623DfE1x4sd');
 
-        // const cartResult = await pool.query(`SELECT * FROM carts WHERE user_id = '${userResult.rows[0].id}'`);
-        // if (!cartResult.rowCount) return res.status(404).send();
-        
-        // // Save cart items as an array of order_items (name, price, quantity)
-        // let order_items = [];
-        // for (const item of cartResult.rows[0].items) {
-        //     order_items.push({
-        //         name: item.name,
-        //         price: item.price,
-        //         quantity: item.quantity
-        //     });
-        // }
-        
-        // // Create a new order
-        // await pool.query(
-        //     `INSERT INTO orders (
-        //         user_id,
-        //         date_placed,
-        //         items
-        //     ) VALUES (
-        //         '${cartResult.rows[0].user_id}',
-        //         ${Date.now()},
-        //         '${order_items}'
-        //     )`
-        // );
-        
-        // // Clear the user's cart
-        // // await pool.query(
-        // //     `INSERT INTO carts (
-        // //         id,
-        // //         items
-        // //     ) VALUES (
-        // //         gen_random_uuid(),
-        // //         '{}'
-        // //     )`
-        // // );
+        const product = await stripe.products.create({
+            name: req.body.product
+        });        
 
-        res.status(204).send();
+        const price = await stripe.prices.create({
+            product: product.id,
+            unit_amount: req.body.unit_amount,
+            currency: req.body.currency
+        });        
+
+        const checkoutSession = await stripe.checkout.sessions.create({
+            line_items: [
+                {
+                    price: price.id,
+                    quantity: 1
+                }
+            ],
+            mode: 'payment',
+            success_url: `http://localhost:5173/success`,
+            cancel_url: `http://localhost:5173/cancel`
+        });
+
+        res.redirect(303, checkoutSession.url);
 
     } catch (err: any) {
         console.error(err);
