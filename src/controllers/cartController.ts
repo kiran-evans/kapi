@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import { fb } from "../firebase";
 import { addToCart } from "../lib/util";
 import { CartItem } from "../models/CartItem";
+import { Order } from "../models/Order";
 import { Product } from "../models/Product";
 import { User } from "../models/User";
 
@@ -104,17 +105,43 @@ export const GET = (async (req, res) => {
 // Checkout
 export const CHECKOUT = (async (req, res) => {
     try {
-        const stripe = require('stripe')('sk_test_26PHem9AhJZvU623DfE1x4sd');
+        // Verify encoded id token passed from client (checks user has been created and signed in on the client side)
+        const idToken = await fb.auth().verifyIdToken(req.params.idToken);
+        // Get the user data from the db
+        const user = await User.findOne({
+            where: {
+                auth_id: idToken.uid
+            }
+        });
+        if (!user) return res.status(404).send();
 
+        const stripe = require('stripe')(process.env.STRIPE_KEY);
         const product = await stripe.products.create({
-            name: req.body.product
-        });        
-
+            name: user.id
+        });
         const price = await stripe.prices.create({
             product: product.id,
-            unit_amount: req.body.unit_amount,
-            currency: req.body.currency
-        });        
+            unit_amount: req.body.total*100,
+            currency: 'GBP'
+        });
+
+        const items = Array<CartItem>();
+        let total = 0;
+        for (const cartItemId of user.cart_item_ids) {
+            const cartItem = await CartItem.findByPk(cartItemId);
+            if (!cartItem) return res.status(404).send();
+
+            items.push(cartItem);
+            
+            const product = await Product.findByPk(cartItem.product_id);
+            if (!product) return res.status(404).send();
+            total += cartItem.quantity * product.price;
+        }
+
+        await Order.create({
+            items: items,
+            total: total
+        });
 
         const checkoutSession = await stripe.checkout.sessions.create({
             line_items: [
@@ -124,11 +151,14 @@ export const CHECKOUT = (async (req, res) => {
                 }
             ],
             mode: 'payment',
-            success_url: `http://localhost:5173/success`,
-            cancel_url: `http://localhost:5173/cancel`
+            success_url: `${process.env.CLIENT_URL}/?payment_success=true`,
+            cancel_url: `${process.env.CLIENT_URL}/?payment_success=false`
         });
 
-        res.redirect(303, checkoutSession.url);
+        console.log(checkoutSession);
+        
+
+        res.status(200).json({ url: checkoutSession.url });
 
     } catch (err: any) {
         console.error(err);
