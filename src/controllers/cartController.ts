@@ -115,16 +115,6 @@ export const CHECKOUT = (async (req, res) => {
         });
         if (!user) return res.status(404).send();
 
-        const stripe = require('stripe')(process.env.STRIPE_KEY);
-        const product = await stripe.products.create({
-            name: user.id
-        });
-        const price = await stripe.prices.create({
-            product: product.id,
-            unit_amount: req.body.total*100,
-            currency: 'GBP'
-        });
-
         const items = Array<CartItem>();
         let total = 0;
         for (const cartItemId of user.cart_item_ids) {
@@ -138,9 +128,25 @@ export const CHECKOUT = (async (req, res) => {
             total += cartItem.quantity * product.price;
         }
 
-        await Order.create({
+        const stripe = require('stripe')(process.env.STRIPE_KEY);
+        const product = await stripe.products.create({
+            name: user.id
+        });
+        const price = await stripe.prices.create({
+            product: product.id,
+            unit_amount: total*100,
+            currency: 'GBP'
+        });
+
+        const order = await Order.create({
             items: items,
             total: total
+        });
+
+        // Clear the user's cart and add the order to their list of orders
+        await user.update({
+            cart_item_ids: [],
+            order_ids: [...user.order_ids, order.id]
         });
 
         const checkoutSession = await stripe.checkout.sessions.create({
@@ -151,12 +157,9 @@ export const CHECKOUT = (async (req, res) => {
                 }
             ],
             mode: 'payment',
-            success_url: `${process.env.CLIENT_URL}/?payment_success=true`,
-            cancel_url: `${process.env.CLIENT_URL}/?payment_success=false`
-        });
-
-        console.log(checkoutSession);
-        
+            success_url: `${process.env.CLIENT_URL}/?payment_success=true&order_id=${order.id}`,
+            cancel_url: `${process.env.CLIENT_URL}/?payment_success=false&order_id=${order.id}`
+        });        
 
         res.status(200).json({ url: checkoutSession.url });
 
