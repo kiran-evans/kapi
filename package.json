@@ -1,0 +1,42 @@
+{
+  "name": "kapi",
+  "version": "1.1.0",
+  "description": "An e-commerce REST API using Express, Node.js, and Postgres",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc --outDir ./dist",
+    "start": "node ./dist/index.js",
+    "buildDev": "tsc --outDir ./dist.local",
+    "startDev": "nodemon ./dist.local/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "npm@9.6.1",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "firebase-admin": "^11.10.1",
+    "helmet": "^7.0.0",
+    "pg": "^8.11.2",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.32.1",
+    "stripe": "^13.3.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17",
+    "@types/pg": "^8.10.2",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "eslint": "^8.46.0",
+    "eslint-config-standard-with-typescript": "^37.0.0",
+    "eslint-plugin-import": "^2.28.0",
+    "eslint-plugin-n": "^16.0.1",
+    "eslint-plugin-promise": "^6.1.1",
+    "nodemon": "^3.0.1",
+    "typescript": "^5.1.6"
+  }
+}

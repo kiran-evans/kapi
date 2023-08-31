@@ -1,58 +1,15 @@
-import { Pool } from 'pg';
-
-import dotenv from 'dotenv';
-dotenv.config();
+import { Sequelize } from 'sequelize';
 
 // Configure pg
-export const pool = new Pool({
-    user: 'postgres',
+// export const pool = new Pool({
+//     user: 'postgres',
+//     host: 'localhost',
+//     database: 'postgres',
+//     password: process.env.DB_PW,
+//     port: 5432
+// });
+
+export const sequelize = new Sequelize('postgres', 'postgres', process.env.DB_PW, {
     host: 'localhost',
-    database: 'postgres',
-    password: process.env.DB_PW,
-    port: 5432
+    dialect: 'postgres'
 });
-
-// Create tables
-export const createTables = async () => {
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS products (
-            id BIGSERIAL PRIMARY KEY,
-            name varchar(255) NOT NULL,
-            description varchar(255) NOT NULL,
-            price money NOT NULL DEFAULT 0.00
-        )
-    `);
-
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS users (
-            id BIGSERIAL PRIMARY KEY,
-            email varchar(255) NOT NULL UNIQUE,
-            password text NOT NULL
-        )
-    `);
-
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS carts (
-            id BIGSERIAL PRIMARY KEY,
-            user_id bigint REFERENCES users ON DELETE CASCADE,
-            items bigint[] NOT NULL DEFAULT '{}'
-        )
-    `);
-
-    // await pool.query(`
-    //     CREATE TYPE order_item AS (
-    //         name varchar(255),
-    //         price money,
-    //         quantity int
-    //     );
-    // `);
-
-    await pool.query(`
-        CREATE TABLE IF NOT EXISTS orders (
-            id BIGSERIAL PRIMARY KEY,
-            user_id bigint REFERENCES users ON DELETE SET NULL,
-            date_placed bigint NOT NULL,
-            items order_item[] NOT NULL
-        )
-    `);
-}

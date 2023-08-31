@@ -1,19 +1,25 @@
 import { Router } from "express";
-import { AUTH, DELETE, PATCH, POST } from "../controllers/User";
+import { body, param } from 'express-validator';
+import { DELETE, GET, POST } from "../controllers/userController";
 
 const router = Router();
 
 // Default route
 const route = router.route('/user');
-route.post(POST);
+route.post(
+    body('idToken').notEmpty().isJWT(),
+    POST
+);
 
-// Routes using user id
-const idRoute = router.route('/user/:id');
-idRoute.patch(PATCH);
-idRoute.delete(DELETE);
-
-// Auth route
-const authRoute = router.route('/auth');
-authRoute.post(AUTH);
+// Routes using JWT-encoded credentials
+const authIdRoute = router.route('/user/:idToken');
+authIdRoute.get(
+    param('idToken').notEmpty().isJWT(),
+    GET
+);
+authIdRoute.delete(
+    param('idToken').notEmpty().isJWT(),
+    DELETE
+);
 
 export default router;
