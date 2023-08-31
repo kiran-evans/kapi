@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const express_validator_1 = require("express-validator");
+const cartController_1 = require("../controllers/cartController");
+const router = (0, express_1.Router)();
+const idRoute = router.route('/cart/:idToken');
+idRoute.put((0, express_validator_1.param)('idToken').notEmpty().isJWT(), (0, express_validator_1.body)('items').notEmpty().isArray(), cartController_1.REPLACE_CART);
+idRoute.patch((0, express_validator_1.param)('idToken').notEmpty().isJWT(), (0, express_validator_1.body)('item').notEmpty().isObject(), cartController_1.ADD_TO_CART);
+const getRoute = router.route('/cartItem/:id');
+getRoute.get((0, express_validator_1.param)('id').notEmpty().isUUID(), cartController_1.GET);
+const checkoutRoute = router.route('/checkout/:idToken');
+checkoutRoute.post((0, express_validator_1.param)('idToken').notEmpty().isJWT(), cartController_1.CHECKOUT);
+exports.default = router;
