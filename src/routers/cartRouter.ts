@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { body, param } from "express-validator";
-import { ADD_TO_CART, CHECKOUT, REPLACE_CART } from "../controllers/cartController";
+import { ADD_TO_CART, CHECKOUT, GET, REPLACE_CART } from "../controllers/cartController";
 
 const router = Router();
 
@@ -15,7 +15,14 @@ idRoute.patch(
     param('idToken').notEmpty().isJWT(),
     body('item').notEmpty().isObject(),
     ADD_TO_CART
-)
+);
+
+// Get a cart item by its id
+const getRoute = router.route('/cartItem/:id');
+getRoute.get(
+    param('id').notEmpty().isUUID(),
+    GET
+);
 
 // Checkout route
 const checkoutRoute = router.route('/checkout/:idToken');

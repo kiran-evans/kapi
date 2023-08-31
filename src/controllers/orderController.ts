@@ -19,13 +19,11 @@ export const GET = (async (req, res) => {
 // Update one by id
 export const PATCH = (async (req, res) => {
     try {
-        const order = await Order.findByPk(req.params.id);
-
-        if (!order) return res.status(404).send();
-
-        await Order.update(req.body, {
+        await Order.update({
+            paid: req.body.paid
+        }, {
             where: {
-                id: order.id
+                id: req.params.id
             }
         });
 
