@@ -32,3 +32,11 @@ Order.init({
     sequelize,
     tableName: 'orders'
 });
+
+export type OrderItem = {
+    name: string;
+    quantity: number;
+    colour: string;
+    size: string;
+    total: number;
+}
