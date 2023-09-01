@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const express_validator_1 = require("express-validator");
+const userController_1 = require("../controllers/userController");
+const router = (0, express_1.Router)();
+const route = router.route('/user');
+route.post((0, express_validator_1.body)('idToken').notEmpty().isJWT(), userController_1.POST);
+const authIdRoute = router.route('/user/:idToken');
+authIdRoute.get((0, express_validator_1.param)('idToken').notEmpty().isJWT(), userController_1.GET);
+authIdRoute.delete((0, express_validator_1.param)('idToken').notEmpty().isJWT(), userController_1.DELETE);
+exports.default = router;

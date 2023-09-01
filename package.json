@@ -1,6 +1,6 @@
 {
   "name": "kapi",
-  "version": "1.0.1",
+  "version": "1.2.0",
   "description": "An e-commerce REST API using Express, Node.js, and Postgres",
   "main": "index.ts",
   "scripts": {
