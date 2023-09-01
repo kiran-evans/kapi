@@ -100,11 +100,17 @@ exports.CHECKOUT = (async (req, res) => {
             const cartItem = await CartItem_1.CartItem.findByPk(cartItemId);
             if (!cartItem)
                 return res.status(404).send();
-            items.push(cartItem);
             const product = await Product_1.Product.findByPk(cartItem.product_id);
             if (!product)
                 return res.status(404).send();
             total += cartItem.quantity * product.price;
+            items.push({
+                name: product.name,
+                quantity: cartItem.quantity,
+                colour: cartItem.colour,
+                size: cartItem.size,
+                total: cartItem.quantity * product.price
+            });
         }
         const stripe = require('stripe')(process.env.STRIPE_KEY);
         const product = await stripe.products.create({

@@ -2,7 +2,7 @@ import { RequestHandler } from "express";
 import { fb } from "../firebase";
 import { addToCart } from "../lib/util";
 import { CartItem } from "../models/CartItem";
-import { Order } from "../models/Order";
+import { Order, OrderItem } from "../models/Order";
 import { Product } from "../models/Product";
 import { User } from "../models/User";
 
@@ -115,17 +115,23 @@ export const CHECKOUT = (async (req, res) => {
         });
         if (!user) return res.status(404).send();
 
-        const items = Array<CartItem>();
+        const items = Array<OrderItem>();
         let total = 0;
         for (const cartItemId of user.cart_item_ids) {
             const cartItem = await CartItem.findByPk(cartItemId);
             if (!cartItem) return res.status(404).send();
-
-            items.push(cartItem);
             
             const product = await Product.findByPk(cartItem.product_id);
             if (!product) return res.status(404).send();
             total += cartItem.quantity * product.price;
+
+            items.push({
+                name: product.name,
+                quantity: cartItem.quantity,
+                colour: cartItem.colour,
+                size: cartItem.size,
+                total: cartItem.quantity * product.price
+            });
         }
 
         const stripe = require('stripe')(process.env.STRIPE_KEY);
