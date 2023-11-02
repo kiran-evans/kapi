@@ -9,7 +9,8 @@ import { Sequelize } from 'sequelize';
 //     port: 5432
 // });
 
-export const sequelize = new Sequelize('postgres', 'postgres', process.env.DB_PW, {
-    host: 'localhost',
+export const sequelize = new Sequelize(process.env.DB_NAME ?? '', process.env.DB_USERNAME ?? '', process.env.DB_PW, {
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
     dialect: 'postgres'
 });

@@ -6,3 +6,4 @@ Dockerfile
 .gitignore
 .github
 .vscode
+.env
