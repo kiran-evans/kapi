@@ -8,7 +8,7 @@ const firebase_admin_1 = __importDefault(require("firebase-admin"));
 exports.fb = firebase_admin_1.default.initializeApp({
     credential: firebase_admin_1.default.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/gm, "\n"),
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL
     })
 });
