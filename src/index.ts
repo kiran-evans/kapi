@@ -42,5 +42,6 @@ import { sequelize } from './pg';
 
 // Server start
 app.listen(process.env.PORT, () => {
-  console.log(`[server] server started on '${process.env.DOMAIN}'`);
+    console.log(`[server] server started on PORT=${process.env.PORT}`);
+    console.log(`[server] DB_HOST=${process.env.DB_HOST}, DB_PORT=${process.env.DB_PORT}`);
 });
