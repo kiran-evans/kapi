@@ -10,7 +10,7 @@ import { Sequelize } from 'sequelize';
 // });
 
 export const sequelize = new Sequelize(process.env.DB_NAME ?? '', process.env.DB_USERNAME ?? '', process.env.DB_PW, {
-    host: process.env.DB_HOST,
+    host: String(process.env.DB_HOST),
     port: Number(process.env.DB_PORT),
     dialect: 'postgres'
 });
